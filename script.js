@@ -1794,34 +1794,90 @@ window.toggleTimersVisibility =
 
 window.testPlay = function(playerNum) {
 
-    console.log(
-        'TEST PLAY:',
-        playerNum
-    );
+    console.log('==============================');
+    console.log('TEST PLAY:', playerNum);
 
-    const info =
-        players[playerNum];
+    const info = players[playerNum];
 
     if (!info) {
-
-        console.log(
-            'TEST PLAY: player info not found',
-            playerNum
-        );
-
+        console.log('TEST PLAY: player info not found');
         return;
-
     }
 
     if (!info.player) {
+        console.log('TEST PLAY: Twitch player not found');
+        return;
+    }
+
+    // Ищем iframe Twitch внутри контейнера плеера
+    const container = document.getElementById(
+        `player-${playerNum}`
+    );
+
+    const iframe = container
+        ? container.querySelector('iframe')
+        : null;
+
+    console.log(
+        'TEST PLAY: container:',
+        container
+    );
+
+    console.log(
+        'TEST PLAY: iframe:',
+        iframe
+    );
+
+    if (container) {
+
+        const containerStyle =
+            window.getComputedStyle(container);
 
         console.log(
-            'TEST PLAY: Twitch player not found',
-            playerNum
+            'TEST PLAY: container visibility:',
+            containerStyle.visibility
         );
 
-        return;
+        console.log(
+            'TEST PLAY: container display:',
+            containerStyle.display
+        );
 
+        console.log(
+            'TEST PLAY: container opacity:',
+            containerStyle.opacity
+        );
+
+        console.log(
+            'TEST PLAY: container rect:',
+            container.getBoundingClientRect()
+        );
+    }
+
+    if (iframe) {
+
+        const iframeStyle =
+            window.getComputedStyle(iframe);
+
+        console.log(
+            'TEST PLAY: iframe visibility:',
+            iframeStyle.visibility
+        );
+
+        console.log(
+            'TEST PLAY: iframe display:',
+            iframeStyle.display
+        );
+
+        console.log(
+            'TEST PLAY: iframe opacity:',
+            iframeStyle.opacity
+        );
+
+        console.log(
+            'TEST PLAY: iframe rect:',
+            iframe.getBoundingClientRect()
+        );
     }
 
     console.log(
