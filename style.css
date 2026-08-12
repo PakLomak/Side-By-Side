@@ -1,0 +1,214 @@
+body { 
+    font-family: sans-serif; 
+    background: #121212; 
+    color: #fff; 
+    text-align: center; 
+    margin: 0; 
+    padding: 15px; 
+}
+
+.inputs-container { 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+    margin-bottom: 15px; 
+    flex-wrap: nowrap; 
+}
+
+.input-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+    align-items: center; 
+    background: #1e1e1e; 
+    padding: 12px; 
+    border-radius: 8px; 
+    border: 1px solid #333; 
+    width: 45%; 
+    box-sizing: border-box;
+}
+
+textarea { 
+    width: 100%; 
+    height: 45px; 
+    padding: 8px; 
+    font-size: 12px; 
+    border: 1px solid #444; 
+    background: #222; 
+    color: #fff; 
+    border-radius: 4px; 
+    resize: none; 
+    box-sizing: border-box;
+}
+
+.time-input-block { 
+    display: flex; 
+    gap: 6px; 
+    align-items: center; 
+    font-size: 13px; 
+    color: #aaa; 
+}
+
+.time-input-block input { 
+    width: 60px; 
+    padding: 5px; 
+    text-align: center; 
+    background: #222; 
+    border: 1px solid #444; 
+    color: #fff; 
+    border-radius: 4px; 
+    font-size: 13px; 
+}
+
+button { 
+    font-size: 14px; 
+    padding: 8px 16px; 
+    cursor: pointer; 
+    border: none; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    transition: background 0.2s, transform 0.1s; 
+}
+
+button:active { transform: scale(0.98); }
+
+.btn-load { 
+    background: #4caf50; 
+    color: white; 
+    width: 100%; 
+}
+.btn-load:hover { background: #45a049; }
+
+.controls { 
+    margin-bottom: 12px; 
+    display: flex; 
+    justify-content: center; 
+    gap: 10px; 
+}
+
+.btn-control { 
+    font-size: 16px; 
+    padding: 10px 20px; 
+    min-width: 110px; 
+    color: white; 
+}
+.btn-play { background: #2e7d32; }
+.btn-play:hover { background: #1b5e20; }
+.btn-pause { background: #f57c00; }
+.btn-pause:hover { background: #e65100; }
+.btn-stop { background: #c62828; }
+.btn-stop:hover { background: #b71c1c; }
+.btn-toggle-timers { background: #00796b; }
+.btn-toggle-timers:hover { background: #004d40; }
+
+/* Дизайн плиток-переключателей вида экрана */
+.layout-selector {
+    background: #1a1a1a;
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: 1px solid #2d2d2d;
+    display: inline-flex;
+    margin-bottom: 15px;
+}
+.btn-layout {
+    background: #333;
+    color: #ccc;
+    font-size: 13px;
+    padding: 6px 12px;
+}
+.btn-layout:hover { background: #444; color: #fff; }
+.btn-layout.active {
+    background: #6200ea; /* Фиолетовый маркер активного режима */
+    color: #fff;
+}
+
+.rew-controls { margin-bottom: 10px; }
+.btn-rew { 
+    background: #37474f; 
+    color: #fff; 
+    font-size: 13px; 
+    padding: 6px 12px; 
+    border: 1px solid #455a64; 
+}
+.btn-rew:hover { background: #455a64; }
+
+.fwd-controls { margin-bottom: 20px; }
+.btn-fwd { 
+    background: #424242; 
+    color: #fff; 
+    font-size: 13px; 
+    padding: 6px 12px; 
+    border: 1px solid #616161; 
+}
+.btn-fwd:hover { background: #616161; }
+
+.high-res-timer { 
+    font-family: monospace; 
+    font-size: 20px; 
+    background: #263238; 
+    color: #00e676; 
+    padding: 6px 0; 
+    margin-bottom: 6px; 
+    border-radius: 4px; 
+    border: 1px solid #37474f; 
+    letter-spacing: 1px; 
+}
+
+.player-box { 
+    width: 100%; 
+    aspect-ratio: 16/9; 
+    background: #000; 
+    border-radius: 6px; 
+    overflow: hidden; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+}
+
+iframe { 
+    width: 100% !important; 
+    height: 100% !important; 
+    border: none; 
+}
+
+/* ==========================================================================
+   ДИНАМИЧЕСКИЕ РЕЖИМЫ СЕТКИ (УПРАВЛЯЮТСЯ ЧЕРЕЗ ПЛИТКИ ИНТЕРФЕЙСА)
+   ========================================================================== */
+.video-container {
+    display: flex;
+    gap: 15px;
+    margin: 0 auto;
+    transition: all 0.3s ease; /* Плавное перетекание размеров окон */
+}
+
+/* Режим 1: Классический Side-by-Side (Рядом) */
+.layout-side {
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px;
+    flex-direction: row;
+}
+.layout-side .player-column {
+    width: 50%;
+}
+
+/* Режим 2: Крупно (Большие проигрыватели на максимум экрана) */
+.layout-large {
+    justify-content: center;
+    width: 100%;
+    max-width: 1920px; /* Расширяет общую сетку */
+    flex-direction: row;
+}
+.layout-large .player-column {
+    width: 50%; /* Окна остаются рядом, но увеличивают масштаб до упора */
+}
+
+/* Режим 3: Вертикальный (Друг под другом) */
+.layout-vertical {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.layout-vertical .player-column {
+    width: 70%; /* Видео выстраиваются в линию, занимая 70% ширины */
+    max-width: 900px;
+    margin-bottom: 20px;
+}
