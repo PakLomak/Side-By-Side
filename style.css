@@ -308,7 +308,7 @@ button:active {
     aspect-ratio: 16/9; 
     background: #000; 
     border-radius: 6px; 
-    overflow: hidden; 
+    overflow: visible; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
 }
 
