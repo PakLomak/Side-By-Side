@@ -163,186 +163,159 @@
          ОСНОВНЫЕ КНОПКИ
          ===================================================== -->
 
-    <div class="controls main-controls">
+ <div class="controls main-controls">
+
+    <button
+        class="btn-control btn-play"
+        onclick="syncPlay()"
+        title="Синхронный старт"
+    >
+        ▶
+    </button>
+
+    <button
+        class="btn-control btn-pause"
+        onclick="syncPause()"
+        title="Пауза"
+    >
+        ❚❚
+    </button>
+
+    <button
+        class="btn-control btn-stop"
+        onclick="syncStop()"
+        title="В начало"
+    >
+        ◼
+    </button>
+
+    <button
+        class="btn-control btn-toggle-timers"
+        onclick="toggleTimersVisibility()"
+        title="Таймеры"
+    >
+        👁
+    </button>
 
 
-        <button
-            class="btn-control btn-play"
-            onclick="syncPlay()"
-        >
-            ▶ СИНХРО СТАРТ
-        </button>
-
-
-        <button
-            class="btn-control btn-pause"
-            onclick="syncPause()"
-        >
-            ❚❚ ПАУЗА
-        </button>
-
-
-        <button
-            class="btn-control btn-stop"
-            onclick="syncStop()"
-        >
-            ◼ В НАЧАЛО
-        </button>
-
-
-        <button
-            class="btn-control btn-toggle-timers"
-            onclick="toggleTimersVisibility()"
-        >
-            👁 ТАЙМЕРЫ
-        </button>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         РАСКЛАДКА
-         ===================================================== -->
-
-    <div class="controls layout-selector">
-
-
-        <span
-            style="
-                align-self: center;
-                font-weight: bold;
-                color: #aaa;
-            "
-        >
-            Вид экрана:
-        </span>
-
+    <div class="layout-selector">
 
         <button
             class="btn-layout active"
             onclick="changeLayout('side')"
+            title="Рядом (50/50)"
         >
-            ❖ Рядом (50/50)
+            ❖
         </button>
-
 
         <button
             class="btn-layout"
             onclick="changeLayout('large')"
+            title="Крупно"
         >
-            🔎 Крупно (100%)
+            🔎
         </button>
-
 
         <button
             class="btn-layout"
             onclick="changeLayout('vertical')"
+            title="Друг под другом"
         >
-            ☰ Друг под другом
+            ☰
         </button>
 
     </div>
 
-
+</div>
 
     <!-- =====================================================
-         ПЕРЕМОТКА НАЗАД
+         ПЕРЕМОТКА
          ===================================================== -->
 
-    <div class="controls rew-controls">
+   <div class="seek-controls">
 
+    <!-- Перемотка назад -->
+    <div class="seek-row rew-controls">
 
         <button
             class="btn-rew"
             onclick="syncRewind(0.01)"
         >
-            -0.01 сек
+            0.01s
         </button>
-
 
         <button
             class="btn-rew"
             onclick="syncRewind(0.1)"
         >
-            -0.1 сек
+            0.1s
         </button>
-
 
         <button
             class="btn-rew"
             onclick="syncRewind(1)"
         >
-            -1 сек
+            1s
         </button>
-
 
         <button
             class="btn-rew"
             onclick="syncRewind(5)"
         >
-            -5 сек
+            5s
         </button>
-
 
         <button
             class="btn-rew"
             onclick="syncRewind(10)"
         >
-            -10 сек
+            10s
         </button>
 
     </div>
 
 
-
-    <!-- =====================================================
-         ПЕРЕМОТКА ВПЕРЕД
-         ===================================================== -->
-
-    <div class="controls fwd-controls">
-
+    <!-- Перемотка вперёд -->
+    <div class="seek-row fwd-controls">
 
         <button
             class="btn-fwd"
             onclick="syncForward(0.01)"
         >
-            +0.01 сек
+            0.01s
         </button>
-
 
         <button
             class="btn-fwd"
             onclick="syncForward(0.1)"
         >
-            +0.1 сек
+            0.1s
         </button>
-
 
         <button
             class="btn-fwd"
             onclick="syncForward(1)"
         >
-            +1 сек
+            1s
         </button>
-
 
         <button
             class="btn-fwd"
             onclick="syncForward(5)"
         >
-            +5 сек
+            5s
         </button>
-
 
         <button
             class="btn-fwd"
             onclick="syncForward(10)"
         >
-            +10 сек
+            10s
         </button>
 
     </div>
+
+</div>
 
 
 

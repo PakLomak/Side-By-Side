@@ -7,6 +7,11 @@ body {
     padding: 15px; 
 }
 
+
+/* ==========================================================
+   ПОЛЯ ВВОДА
+   ========================================================== */
+
 .inputs-container { 
     display: flex; 
     justify-content: center; 
@@ -60,6 +65,11 @@ textarea {
     font-size: 13px; 
 }
 
+
+/* ==========================================================
+   ОБЩИЕ КНОПКИ
+   ========================================================== */
+
 button { 
     font-size: 14px; 
     padding: 8px 16px; 
@@ -70,14 +80,29 @@ button {
     transition: background 0.2s, transform 0.1s; 
 }
 
-button:active { transform: scale(0.98); }
+button:active { 
+    transform: scale(0.98); 
+}
+
+
+/* ==========================================================
+   КНОПКА ЗАГРУЗКИ
+   ========================================================== */
 
 .btn-load { 
     background: #4caf50; 
     color: white; 
     width: 100%; 
 }
-.btn-load:hover { background: #45a049; }
+
+.btn-load:hover { 
+    background: #45a049; 
+}
+
+
+/* ==========================================================
+   ОСНОВНЫЕ КНОПКИ УПРАВЛЕНИЯ
+   ========================================================== */
 
 .controls { 
     margin-bottom: 12px; 
@@ -86,61 +111,180 @@ button:active { transform: scale(0.98); }
     gap: 10px; 
 }
 
-.btn-control { 
-    font-size: 16px; 
-    padding: 10px 20px; 
-    min-width: 110px; 
-    color: white; 
+.main-controls {
+    align-items: center;
 }
-.btn-play { background: #2e7d32; }
-.btn-play:hover { background: #1b5e20; }
-.btn-pause { background: #f57c00; }
-.btn-pause:hover { background: #e65100; }
-.btn-stop { background: #c62828; }
-.btn-stop:hover { background: #b71c1c; }
-.btn-toggle-timers { background: #00796b; }
-.btn-toggle-timers:hover { background: #004d40; }
 
-/* Дизайн плиток-переключателей вида экрана */
+.btn-control {
+    width: 48px;
+    height: 42px;
+    padding: 0;
+    font-size: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Запуск */
+
+.btn-play { 
+    background: #2e7d32; 
+}
+
+.btn-play:hover { 
+    background: #1b5e20; 
+}
+
+
+/* Пауза */
+
+.btn-pause { 
+    background: #f57c00; 
+}
+
+.btn-pause:hover { 
+    background: #e65100; 
+}
+
+
+/* В начало */
+
+.btn-stop { 
+    background: #c62828; 
+}
+
+.btn-stop:hover { 
+    background: #b71c1c; 
+}
+
+
+/* Таймеры */
+
+.btn-toggle-timers { 
+    background: #00796b; 
+}
+
+.btn-toggle-timers:hover { 
+    background: #004d40; 
+}
+
+
+/* ==========================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ВИДА ЭКРАНА
+   ========================================================== */
+
 .layout-selector {
     background: #1a1a1a;
-    padding: 8px 15px;
+    padding: 4px;
     border-radius: 6px;
     border: 1px solid #2d2d2d;
     display: inline-flex;
-    margin-bottom: 15px;
+    gap: 3px;
+    margin-bottom: 0;
 }
+
 .btn-layout {
+    width: 38px;
+    height: 32px;
+    padding: 0;
     background: #333;
     color: #ccc;
-    font-size: 13px;
-    padding: 6px 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.btn-layout:hover { background: #444; color: #fff; }
-.btn-layout.active {
-    background: #6200ea; /* Фиолетовый маркер активного режима */
+
+.btn-layout:hover {
+    background: #444;
     color: #fff;
 }
 
-.rew-controls { margin-bottom: 10px; }
-.btn-rew { 
-    background: #37474f; 
-    color: #fff; 
-    font-size: 13px; 
-    padding: 6px 12px; 
-    border: 1px solid #455a64; 
+.btn-layout.active {
+    background: #6200ea;
+    color: #fff;
 }
-.btn-rew:hover { background: #455a64; }
 
-.fwd-controls { margin-bottom: 20px; }
-.btn-fwd { 
-    background: #424242; 
-    color: #fff; 
-    font-size: 13px; 
-    padding: 6px 12px; 
-    border: 1px solid #616161; 
+
+/* ==========================================================
+   ПАНЕЛЬ ПЕРЕМОТКИ
+   ========================================================== */
+
+.seek-controls {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    margin-bottom: 20px;
+    background: #1a1a1a;
+    border: 1px solid #2d2d2d;
+    border-radius: 6px;
 }
-.btn-fwd:hover { background: #616161; }
+
+.seek-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-rew,
+.btn-fwd {
+    width: 70px;
+    height: 32px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 13px;
+    padding: 0;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Перемотка назад — красная */
+
+.btn-rew {
+    background: #7f1d1d;
+    border-color: #991b1b;
+}
+
+.btn-rew:hover {
+    background: #991b1b;
+    border-color: #b91c1c;
+}
+
+
+/* Перемотка вперёд — зелёная */
+
+.btn-fwd {
+    background: #166534;
+    border-color: #15803d;
+}
+
+.btn-fwd:hover {
+    background: #15803d;
+    border-color: #16a34a;
+}
+
+
+/* Разделение между перемоткой назад и вперёд */
+
+.rew-controls {
+    padding-bottom: 6px;
+    border-bottom: 1px solid #333;
+}
+
+.fwd-controls {
+    padding-top: 0;
+}
+
+
+/* ==========================================================
+   ТАЙМЕР
+   ========================================================== */
 
 .high-res-timer { 
     font-family: monospace; 
@@ -153,6 +297,11 @@ button:active { transform: scale(0.98); }
     border: 1px solid #37474f; 
     letter-spacing: 1px; 
 }
+
+
+/* ==========================================================
+   ВИДЕОПЛЕЕР
+   ========================================================== */
 
 .player-box { 
     width: 100%; 
@@ -169,46 +318,63 @@ iframe {
     border: none; 
 }
 
-/* ==========================================================================
-   ДИНАМИЧЕСКИЕ РЕЖИМЫ СЕТКИ (УПРАВЛЯЮТСЯ ЧЕРЕЗ ПЛИТКИ ИНТЕРФЕЙСА)
-   ========================================================================== */
+
+/* ==========================================================
+   КОНТЕЙНЕР ВИДЕО
+   ========================================================== */
+
 .video-container {
     display: flex;
     gap: 15px;
     margin: 0 auto;
-    transition: all 0.3s ease; /* Плавное перетекание размеров окон */
+    transition: all 0.3s ease;
 }
 
-/* Режим 1: Классический Side-by-Side (Рядом) */
+
+/* ==========================================================
+   РЕЖИМ 1 — РЯДОМ
+   ========================================================== */
+
 .layout-side {
     justify-content: center;
     width: 100%;
     max-width: 1400px;
     flex-direction: row;
 }
+
 .layout-side .player-column {
     width: 50%;
 }
 
-/* Режим 2: Крупно (Большие проигрыватели на максимум экрана) */
+
+/* ==========================================================
+   РЕЖИМ 2 — КРУПНО
+   ========================================================== */
+
 .layout-large {
     justify-content: center;
     width: 100%;
-    max-width: 1920px; /* Расширяет общую сетку */
+    max-width: 1920px;
     flex-direction: row;
 }
+
 .layout-large .player-column {
-    width: 50%; /* Окна остаются рядом, но увеличивают масштаб до упора */
+    width: 50%;
 }
 
-/* Режим 3: Вертикальный (Друг под другом) */
+
+/* ==========================================================
+   РЕЖИМ 3 — ВЕРТИКАЛЬНО
+   ========================================================== */
+
 .layout-vertical {
     flex-direction: column;
     align-items: center;
     width: 100%;
 }
+
 .layout-vertical .player-column {
-    width: 70%; /* Видео выстраиваются в линию, занимая 70% ширины */
+    width: 70%;
     max-width: 900px;
     margin-bottom: 20px;
 }
