@@ -64,49 +64,41 @@ let timersVisible = true;
 
 function formatHighResTime(totalSeconds) {
 
-
     if (totalSeconds < 0) {
 
         totalSeconds = 0;
 
     }
 
-
     const mins =
         Math.floor(
             totalSeconds / 60
         );
-
 
     const secs =
         Math.floor(
             totalSeconds % 60
         );
 
-
     const ms =
         Math.floor(
             (totalSeconds % 1) * 1000
         );
-
 
     const strMins =
         mins
             .toString()
             .padStart(2, '0');
 
-
     const strSecs =
         secs
             .toString()
             .padStart(2, '0');
 
-
     const strMs =
         ms
             .toString()
             .padStart(3, '0');
-
 
     return (
         `${strMins}:${strSecs}.${strMs}`
@@ -121,14 +113,12 @@ function formatHighResTime(totalSeconds) {
 
 function updateTimerDisplays() {
 
-
     document.getElementById(
         'timer-display-1'
     ).innerText =
         formatHighResTime(
             videoTime1
         );
-
 
     document.getElementById(
         'timer-display-2'
@@ -146,10 +136,8 @@ function updateTimerDisplays() {
 
 function getYouTubeVideoId(input) {
 
-
     const value =
         input.trim();
-
 
     if (!value) {
 
@@ -172,7 +160,6 @@ function getYouTubeVideoId(input) {
 
 
     try {
-
 
         const url =
             new URL(value);
@@ -256,7 +243,6 @@ function getYouTubeVideoId(input) {
 
         }
 
-
     }
 
     catch (error) {
@@ -264,7 +250,6 @@ function getYouTubeVideoId(input) {
         return null;
 
     }
-
 
     return null;
 
@@ -277,10 +262,8 @@ function getYouTubeVideoId(input) {
 
 function getTwitchInfo(input) {
 
-
     const value =
         input.trim();
-
 
     if (!value) {
 
@@ -288,9 +271,7 @@ function getTwitchInfo(input) {
 
     }
 
-
     try {
-
 
         const url =
             new URL(value);
@@ -436,7 +417,6 @@ function getTwitchInfo(input) {
 
 function detectVideoSource(input) {
 
-
     const youtubeId =
         getYouTubeVideoId(input);
 
@@ -475,7 +455,6 @@ function detectVideoSource(input) {
 // ============================================================
 
 function getTwitchParent() {
-
 
     let hostname =
         window.location.hostname;
@@ -517,7 +496,6 @@ function getTwitchParent() {
 // ============================================================
 
 function getStartTime(playerNum) {
-
 
     const minutes =
         parseInt(
@@ -571,7 +549,6 @@ function createYouTubePlayer(
     videoId,
     startTime
 ) {
-
 
     const container =
         document.getElementById(
@@ -660,10 +637,8 @@ function createYouTubePlayer(
     iframe.onload =
         function() {
 
-
             setTimeout(
                 function() {
-
 
                     sendYouTubeCommand(
                         playerNum,
@@ -679,7 +654,6 @@ function createYouTubePlayer(
                         playerNum,
                         'pauseVideo'
                     );
-
 
                 },
                 700
@@ -699,7 +673,6 @@ function createTwitchPlayer(
     twitchInfo,
     startTime
 ) {
-
 
     const container =
         document.getElementById(
@@ -751,7 +724,6 @@ function createTwitchPlayer(
             'twitch-vod'
     ) {
 
-
         const twitchPlayer =
             new Twitch.Player(
                 twitchContainer.id,
@@ -796,7 +768,6 @@ function createTwitchPlayer(
             Twitch.Player.READY,
             function() {
 
-
                 players[playerNum]
                     .twitchReady = true;
 
@@ -814,15 +785,10 @@ function createTwitchPlayer(
                 }
 
 
-                // Всегда начинаем с паузы
-
                 twitchPlayer.pause();
 
 
-                // ------------------------------------------------
-                // Если пользователь уже нажал PLAY,
-                // пока Twitch ещё загружался
-                // ------------------------------------------------
+                // Если пользователь уже нажал PLAY
 
                 if (
                     players[playerNum]
@@ -854,7 +820,6 @@ function createTwitchPlayer(
         twitchInfo.type ===
             'twitch-channel'
     ) {
-
 
         const twitchPlayer =
             new Twitch.Player(
@@ -899,7 +864,6 @@ function createTwitchPlayer(
             Twitch.Player.READY,
             function() {
 
-
                 players[playerNum]
                     .twitchReady = true;
 
@@ -910,10 +874,7 @@ function createTwitchPlayer(
                 twitchPlayer.pause();
 
 
-                // ------------------------------------------------
-                // Если пользователь уже нажал PLAY,
-                // пока Twitch ещё загружался
-                // ------------------------------------------------
+                // Если пользователь уже нажал PLAY
 
                 if (
                     players[playerNum]
@@ -943,7 +904,6 @@ function createTwitchPlayer(
 window.loadEmbedVideo =
     function(playerNum) {
 
-
         const input =
             document.getElementById(
                 'code' + playerNum
@@ -957,7 +917,6 @@ window.loadEmbedVideo =
 
 
         if (!source) {
-
 
             alert(
 
@@ -1067,7 +1026,6 @@ window.loadEmbedVideo =
                 'youtube'
         ) {
 
-
             createYouTubePlayer(
 
                 playerNum,
@@ -1100,7 +1058,6 @@ window.loadEmbedVideo =
 
         ) {
 
-
             createTwitchPlayer(
 
                 playerNum,
@@ -1128,7 +1085,6 @@ function sendYouTubeCommand(
     funcName,
     argsArray = []
 ) {
-
 
     const iframe =
         players[playerNum]
@@ -1168,7 +1124,6 @@ function sendYouTubeCommand(
 
 function playVideo(playerNum) {
 
-
     const info =
         players[playerNum];
 
@@ -1188,7 +1143,6 @@ function playVideo(playerNum) {
         info.type ===
             'youtube'
     ) {
-
 
         sendYouTubeCommand(
             playerNum,
@@ -1212,7 +1166,6 @@ function playVideo(playerNum) {
         info.type ===
             'twitch-channel'
     ) {
-
 
         if (
             !info.player
@@ -1251,7 +1204,6 @@ function playVideo(playerNum) {
 
 function pauseVideo(playerNum) {
 
-
     const info =
         players[playerNum];
 
@@ -1271,7 +1223,6 @@ function pauseVideo(playerNum) {
         info.type ===
             'youtube'
     ) {
-
 
         sendYouTubeCommand(
             playerNum,
@@ -1296,8 +1247,7 @@ function pauseVideo(playerNum) {
             'twitch-channel'
     ) {
 
-
-        // Отменяем отложенный запуск.
+        // Отменяем отложенный запуск
 
         info.pendingPlay =
             false;
@@ -1325,7 +1275,6 @@ function seekVideo(
     time
 ) {
 
-
     if (time < 0) {
 
         time = 0;
@@ -1352,7 +1301,6 @@ function seekVideo(
         info.type ===
             'youtube'
     ) {
-
 
         sendYouTubeCommand(
 
@@ -1382,7 +1330,6 @@ function seekVideo(
             'twitch-vod'
     ) {
 
-
         if (
             info.player
         ) {
@@ -1408,10 +1355,6 @@ function seekVideo(
             'twitch-channel'
     ) {
 
-
-        // Live нельзя перематывать
-        // как обычный VOD.
-
         console.log(
             'Перемотка Twitch Live недоступна.'
         );
@@ -1430,11 +1373,9 @@ function seekVideo(
 
 function startLocalTimer() {
 
-
     if (
         !isCurrentlyPlaying
     ) {
-
 
         isCurrentlyPlaying =
             true;
@@ -1443,7 +1384,6 @@ function startLocalTimer() {
         localTimerInterval =
             setInterval(
                 function() {
-
 
                     videoTime1 +=
                         0.01;
@@ -1455,7 +1395,6 @@ function startLocalTimer() {
 
                     updateTimerDisplays();
 
-
                 },
                 10
             );
@@ -1466,17 +1405,200 @@ function startLocalTimer() {
 
 
 // ============================================================
+// ОЖИДАНИЕ ГОТОВНОСТИ TWITCH
+// ============================================================
+
+function waitForTwitchPlaying(playerNum) {
+
+    return new Promise(
+        function(resolve) {
+
+            const info =
+                players[playerNum];
+
+
+            if (!info) {
+
+                resolve(false);
+
+                return;
+
+            }
+
+
+            // YouTube не требует
+            // ожидания Twitch
+
+            if (
+                info.type ===
+                    'youtube'
+            ) {
+
+                resolve(true);
+
+                return;
+
+            }
+
+
+            // Если Twitch уже готов
+
+            if (
+                info.twitchReady
+            ) {
+
+                resolve(true);
+
+                return;
+
+            }
+
+
+            // Ждём READY
+
+            const checkInterval =
+                setInterval(
+                    function() {
+
+                        const current =
+                            players[playerNum];
+
+
+                        if (
+                            current &&
+                            current.twitchReady
+                        ) {
+
+                            clearInterval(
+                                checkInterval
+                            );
+
+
+                            resolve(true);
+
+                        }
+
+                    },
+                    50
+                );
+
+            // Защита от бесконечного ожидания
+
+            setTimeout(
+                function() {
+
+                    clearInterval(
+                        checkInterval
+                    );
+
+
+                    const current =
+                        players[playerNum];
+
+
+                    if (
+                        current &&
+                        current.twitchReady
+                    ) {
+
+                        resolve(true);
+
+                    }
+                    else {
+
+                        resolve(false);
+
+                    }
+
+                },
+                15000
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
 // СИНХРОННЫЙ СТАРТ
 // ============================================================
 
 window.syncPlay =
-    function() {
+    async function() {
 
+
+        // ----------------------------------------------------
+        // Сначала ждём готовности первого плеера
+        // ----------------------------------------------------
+
+        const player1Ready =
+            await waitForTwitchPlaying(1);
+
+
+        if (!player1Ready) {
+
+            console.warn(
+                'Первый плеер не готов к запуску.'
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // Запускаем первый
+        // ----------------------------------------------------
 
         playVideo(1);
 
+
+        // ----------------------------------------------------
+        // Небольшая задержка перед вторым
+        // ----------------------------------------------------
+
+        await new Promise(
+            function(resolve) {
+
+                setTimeout(
+                    resolve,
+                    100
+                );
+
+            }
+        );
+
+
+        // ----------------------------------------------------
+        // Ждём готовности второго
+        // ----------------------------------------------------
+
+        const player2Ready =
+            await waitForTwitchPlaying(2);
+
+
+        if (!player2Ready) {
+
+            console.warn(
+                'Второй плеер не готов к запуску.'
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // Запускаем второй
+        // ----------------------------------------------------
+
         playVideo(2);
 
+
+        // ----------------------------------------------------
+        // Запускаем локальный таймер
+        // ----------------------------------------------------
 
         startLocalTimer();
 
@@ -1489,7 +1611,6 @@ window.syncPlay =
 
 window.syncPause =
     function() {
-
 
         pauseVideo(1);
 
@@ -1513,7 +1634,6 @@ window.syncPause =
 
 window.syncStop =
     function() {
-
 
         window.syncPause();
 
@@ -1558,7 +1678,6 @@ window.syncStop =
 window.syncRewind =
     function(secondsToRewind) {
 
-
         videoTime1 =
             Math.max(
                 0,
@@ -1599,7 +1718,6 @@ window.syncRewind =
 window.syncForward =
     function(secondsToForward) {
 
-
         videoTime1 +=
             secondsToForward;
 
@@ -1632,7 +1750,6 @@ window.syncForward =
 window.toggleTimersVisibility =
     function() {
 
-
         const timer1 =
             document.getElementById(
                 'timer-display-1'
@@ -1653,7 +1770,6 @@ window.toggleTimersVisibility =
 
         if (timersVisible) {
 
-
             timer1.style.display =
                 'none';
 
@@ -1672,7 +1788,6 @@ window.toggleTimersVisibility =
         }
 
         else {
-
 
             timer1.style.display =
                 'block';
