@@ -6,7 +6,8 @@
 //
 // type:
 //     "youtube"
-//     "twitch"
+//     "twitch-vod"
+//     "twitch-channel"
 //
 // player:
 //     объект Twitch Player
@@ -16,6 +17,10 @@
 //
 // twitchReady:
 //     готов ли Twitch Player
+//
+// pendingPlay:
+//     нужно ли запустить Twitch Player,
+//     когда он станет READY
 
 const players = {
 
@@ -23,14 +28,16 @@ const players = {
         type: null,
         player: null,
         iframe: null,
-        twitchReady: false
+        twitchReady: false,
+        pendingPlay: false
     },
 
     2: {
         type: null,
         player: null,
         iframe: null,
-        twitchReady: false
+        twitchReady: false,
+        pendingPlay: false
     }
 
 };
@@ -643,7 +650,9 @@ function createYouTubePlayer(
 
         iframe: iframe,
 
-        twitchReady: false
+        twitchReady: false,
+
+        pendingPlay: false
 
     };
 
@@ -776,7 +785,9 @@ function createTwitchPlayer(
 
             iframe: null,
 
-            twitchReady: false
+            twitchReady: false,
+
+            pendingPlay: false
 
         };
 
@@ -803,7 +814,28 @@ function createTwitchPlayer(
                 }
 
 
+                // Всегда начинаем с паузы
+
                 twitchPlayer.pause();
+
+
+                // ------------------------------------------------
+                // Если пользователь уже нажал PLAY,
+                // пока Twitch ещё загружался
+                // ------------------------------------------------
+
+                if (
+                    players[playerNum]
+                        .pendingPlay
+                ) {
+
+                    players[playerNum]
+                        .pendingPlay = false;
+
+
+                    twitchPlayer.play();
+
+                }
 
             }
         );
@@ -856,7 +888,9 @@ function createTwitchPlayer(
 
             iframe: null,
 
-            twitchReady: false
+            twitchReady: false,
+
+            pendingPlay: false
 
         };
 
@@ -874,6 +908,25 @@ function createTwitchPlayer(
                 // произвольное начальное время
 
                 twitchPlayer.pause();
+
+
+                // ------------------------------------------------
+                // Если пользователь уже нажал PLAY,
+                // пока Twitch ещё загружался
+                // ------------------------------------------------
+
+                if (
+                    players[playerNum]
+                        .pendingPlay
+                ) {
+
+                    players[playerNum]
+                        .pendingPlay = false;
+
+
+                    twitchPlayer.play();
+
+                }
 
             }
         );
@@ -1127,7 +1180,9 @@ function playVideo(playerNum) {
     }
 
 
+    // --------------------------------------------------------
     // YouTube
+    // --------------------------------------------------------
 
     if (
         info.type ===
@@ -1146,7 +1201,9 @@ function playVideo(playerNum) {
     }
 
 
+    // --------------------------------------------------------
     // Twitch
+    // --------------------------------------------------------
 
     if (
         info.type ===
@@ -1158,12 +1215,30 @@ function playVideo(playerNum) {
 
 
         if (
-            info.player
+            !info.player
         ) {
 
-            info.player.play();
+            return;
 
         }
+
+
+        // Twitch ещё не готов.
+        // Запоминаем команду запуска.
+
+        if (
+            !info.twitchReady
+        ) {
+
+            info.pendingPlay =
+                true;
+
+            return;
+
+        }
+
+
+        info.player.play();
 
     }
 
@@ -1188,7 +1263,9 @@ function pauseVideo(playerNum) {
     }
 
 
+    // --------------------------------------------------------
     // YouTube
+    // --------------------------------------------------------
 
     if (
         info.type ===
@@ -1207,7 +1284,9 @@ function pauseVideo(playerNum) {
     }
 
 
+    // --------------------------------------------------------
     // Twitch
+    // --------------------------------------------------------
 
     if (
         info.type ===
@@ -1216,6 +1295,12 @@ function pauseVideo(playerNum) {
         info.type ===
             'twitch-channel'
     ) {
+
+
+        // Отменяем отложенный запуск.
+
+        info.pendingPlay =
+            false;
 
 
         if (
