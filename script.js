@@ -764,47 +764,74 @@ function createTwitchPlayer(
         };
 
 
-        twitchPlayer.addEventListener(
-            Twitch.Player.READY,
-            function() {
+twitchPlayer.addEventListener(
+    Twitch.Player.READY,
+    function() {
 
-                players[playerNum]
-                    .twitchReady = true;
-
-
-                // Выставляем начальную позицию
-
-                if (
-                    startTime > 0
-                ) {
-
-                    twitchPlayer.seek(
-                        startTime
-                    );
-
-                }
+        const info =
+            players[playerNum];
 
 
-                twitchPlayer.pause();
+        if (!info) {
+
+            return;
+
+        }
 
 
-                // Если пользователь уже нажал PLAY
-
-                if (
-                    players[playerNum]
-                        .pendingPlay
-                ) {
-
-                    players[playerNum]
-                        .pendingPlay = false;
+        info.twitchReady = true;
 
 
-                    twitchPlayer.play();
+        // Выставляем начальную позицию
 
-                }
+        if (
+            startTime > 0
+        ) {
 
-            }
-        );
+            twitchPlayer.seek(
+                startTime
+            );
+
+        }
+
+
+        // Если пользователь уже нажал PLAY
+        // до того, как Twitch стал READY,
+        // запускаем после небольшой задержки.
+
+        if (
+            info.pendingPlay
+        ) {
+
+            info.pendingPlay = false;
+
+
+            setTimeout(
+                function() {
+
+                    // Проверяем, что плеер
+                    // всё ещё существует.
+
+                    if (
+                        players[playerNum]
+                        &&
+                        players[playerNum].player
+                    ) {
+
+                        players[playerNum]
+                            .player
+                            .play();
+
+                    }
+
+                },
+                100
+            );
+
+        }
+
+    }
+);
 
 
         return;
@@ -860,37 +887,57 @@ function createTwitchPlayer(
         };
 
 
-        twitchPlayer.addEventListener(
-            Twitch.Player.READY,
-            function() {
+twitchPlayer.addEventListener(
+    Twitch.Player.READY,
+    function() {
 
-                players[playerNum]
-                    .twitchReady = true;
-
-
-                // Для live нельзя установить
-                // произвольное начальное время
-
-                twitchPlayer.pause();
+        const info =
+            players[playerNum];
 
 
-                // Если пользователь уже нажал PLAY
+        if (!info) {
 
-                if (
-                    players[playerNum]
-                        .pendingPlay
-                ) {
+            return;
 
-                    players[playerNum]
-                        .pendingPlay = false;
+        }
 
 
-                    twitchPlayer.play();
+        info.twitchReady = true;
 
-                }
 
-            }
-        );
+        // Если пользователь уже нажал PLAY
+        // до того, как Twitch стал READY.
+
+        if (
+            info.pendingPlay
+        ) {
+
+            info.pendingPlay = false;
+
+
+            setTimeout(
+                function() {
+
+                    if (
+                        players[playerNum]
+                        &&
+                        players[playerNum].player
+                    ) {
+
+                        players[playerNum]
+                            .player
+                            .play();
+
+                    }
+
+                },
+                100
+            );
+
+        }
+
+    }
+);
 
     }
 
@@ -1525,80 +1572,13 @@ function waitForTwitchPlaying(playerNum) {
 // ============================================================
 
 window.syncPlay =
-    async function() {
+    function() {
 
-
-        // ----------------------------------------------------
-        // Сначала ждём готовности первого плеера
-        // ----------------------------------------------------
-
-        const player1Ready =
-            await waitForTwitchPlaying(1);
-
-
-        if (!player1Ready) {
-
-            console.warn(
-                'Первый плеер не готов к запуску.'
-            );
-
-            return;
-
-        }
-
-
-        // ----------------------------------------------------
-        // Запускаем первый
-        // ----------------------------------------------------
+        console.log('SYNC PLAY');
 
         playVideo(1);
 
-
-        // ----------------------------------------------------
-        // Небольшая задержка перед вторым
-        // ----------------------------------------------------
-
-        await new Promise(
-            function(resolve) {
-
-                setTimeout(
-                    resolve,
-                    100
-                );
-
-            }
-        );
-
-
-        // ----------------------------------------------------
-        // Ждём готовности второго
-        // ----------------------------------------------------
-
-        const player2Ready =
-            await waitForTwitchPlaying(2);
-
-
-        if (!player2Ready) {
-
-            console.warn(
-                'Второй плеер не готов к запуску.'
-            );
-
-            return;
-
-        }
-
-
-        // ----------------------------------------------------
-        // Запускаем второй
-        // ----------------------------------------------------
-
         playVideo(2);
-
-
-        // ----------------------------------------------------
-        // Запускаем локальный таймер
-        // ----------------------------------------------------
 
         startLocalTimer();
 

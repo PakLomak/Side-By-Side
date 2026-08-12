@@ -309,6 +309,8 @@ button:active {
     background: #000; 
     border-radius: 6px; 
     overflow: visible; 
+    visibility: visible;
+    opacity: 1;
     box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
 }
 
