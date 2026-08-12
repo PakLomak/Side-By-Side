@@ -1788,7 +1788,50 @@ window.toggleTimersVisibility =
 
     };
 
+// ============================================================
+// ТЕСТ ОТДЕЛЬНОГО PLAY
+// ============================================================
 
+window.testPlay = function(playerNum) {
+
+    console.log(
+        'TEST PLAY:',
+        playerNum
+    );
+
+    const info =
+        players[playerNum];
+
+    if (!info) {
+
+        console.log(
+            'TEST PLAY: player info not found',
+            playerNum
+        );
+
+        return;
+
+    }
+
+    if (!info.player) {
+
+        console.log(
+            'TEST PLAY: Twitch player not found',
+            playerNum
+        );
+
+        return;
+
+    }
+
+    console.log(
+        'TEST PLAY: calling player.play()',
+        playerNum
+    );
+
+    info.player.play();
+
+};
 // ============================================================
 // ПЕРВОНАЧАЛЬНОЕ ОБНОВЛЕНИЕ
 // ============================================================
