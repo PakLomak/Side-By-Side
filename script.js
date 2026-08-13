@@ -1789,7 +1789,7 @@ window.toggleTimersVisibility =
     };
 
 // ============================================================
-// ТЕСТ ОТДЕЛЬНОГО PLAY
+// ТЕСТ PLAY — ВРЕМЕННО ПЕРЕМЕЩАЕМ TWITCH-КОНТЕЙНЕР В VIEWPORT
 // ============================================================
 
 window.testPlay = function(playerNum) {
@@ -1809,76 +1809,59 @@ window.testPlay = function(playerNum) {
         return;
     }
 
-    // Ищем iframe Twitch внутри контейнера плеера
-    const container = document.getElementById(
-        `player-${playerNum}`
-    );
-
-    const iframe = container
-        ? container.querySelector('iframe')
-        : null;
-
-    console.log(
-        'TEST PLAY: container:',
-        container
+    // Находим именно контейнер Twitch
+    const twitchContainer = document.getElementById(
+        `twitch-player-${playerNum}`
     );
 
     console.log(
-        'TEST PLAY: iframe:',
-        iframe
+        'TEST PLAY: twitchContainer:',
+        twitchContainer
     );
 
-    if (container) {
-
-        const containerStyle =
-            window.getComputedStyle(container);
-
+    if (!twitchContainer) {
         console.log(
-            'TEST PLAY: container visibility:',
-            containerStyle.visibility
+            'TEST PLAY: twitchContainer not found'
         );
 
-        console.log(
-            'TEST PLAY: container display:',
-            containerStyle.display
-        );
-
-        console.log(
-            'TEST PLAY: container opacity:',
-            containerStyle.opacity
-        );
-
-        console.log(
-            'TEST PLAY: container rect:',
-            container.getBoundingClientRect()
-        );
+        return;
     }
 
-    if (iframe) {
+    // Показываем исходную геометрию
+    console.log(
+        'TEST PLAY: BEFORE RECT:',
+        twitchContainer.getBoundingClientRect()
+    );
 
-        const iframeStyle =
-            window.getComputedStyle(iframe);
+    console.log(
+        'TEST PLAY: BEFORE STYLE:',
+        window.getComputedStyle(twitchContainer)
+    );
 
-        console.log(
-            'TEST PLAY: iframe visibility:',
-            iframeStyle.visibility
-        );
+    // ========================================================
+    // ВРЕМЕННО ДЕЛАЕМ КОНТЕЙНЕР ВИДИМЫМ ДЛЯ VIEWPORT
+    // ========================================================
 
-        console.log(
-            'TEST PLAY: iframe display:',
-            iframeStyle.display
-        );
+    twitchContainer.style.position = 'fixed';
+    twitchContainer.style.left = '0px';
+    twitchContainer.style.top = '0px';
+    twitchContainer.style.width = '1px';
+    twitchContainer.style.height = '1px';
 
-        console.log(
-            'TEST PLAY: iframe opacity:',
-            iframeStyle.opacity
-        );
+    // Проверяем новую геометрию
+    console.log(
+        'TEST PLAY: AFTER RECT:',
+        twitchContainer.getBoundingClientRect()
+    );
 
-        console.log(
-            'TEST PLAY: iframe rect:',
-            iframe.getBoundingClientRect()
-        );
-    }
+    console.log(
+        'TEST PLAY: AFTER STYLE:',
+        window.getComputedStyle(twitchContainer)
+    );
+
+    // ========================================================
+    // ЗАПУСКАЕМ TWITCH
+    // ========================================================
 
     console.log(
         'TEST PLAY: calling player.play()',
@@ -1888,6 +1871,7 @@ window.testPlay = function(playerNum) {
     info.player.play();
 
 };
+
 // ============================================================
 // ПЕРВОНАЧАЛЬНОЕ ОБНОВЛЕНИЕ
 // ============================================================
