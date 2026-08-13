@@ -4,7 +4,8 @@ body {
     color: #fff; 
     text-align: center; 
     margin: 0; 
-    padding: 15px; 
+    padding: 15px;
+    box-sizing: border-box;
 }
 
 
@@ -304,20 +305,32 @@ button:active {
    ========================================================== */
 
 .player-box { 
-    width: 100%; 
-    aspect-ratio: 16/9; 
+    width: 100%;
+
+    min-width: 400px;
+    width: max(400px, 100%);
+
+    min-height: 300px;
+    height: auto;
+
+    aspect-ratio: 16 / 9;
+
     background: #000; 
     border-radius: 6px; 
-    overflow: visible; 
-    visibility: visible;
-    opacity: 1;
+    overflow: visible;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+
     box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
 }
-
 iframe { 
-    width: 100% !important; 
-    height: 100% !important; 
-    border: none; 
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 400px !important;
+    min-height: 300px !important;
+    border: none;
 }
 
 
@@ -327,11 +340,10 @@ iframe {
 
 .video-container {
     display: flex;
-    gap: 15px;
+    gap: 2%;
     margin: 0 auto;
     transition: all 0.3s ease;
 }
-
 
 /* ==========================================================
    РЕЖИМ 1 — РЯДОМ
@@ -340,12 +352,14 @@ iframe {
 .layout-side {
     justify-content: center;
     width: 100%;
+    min-width: 815px;
     max-width: 1400px;
     flex-direction: row;
 }
 
 .layout-side .player-column {
-    width: 50%;
+    width: calc((100% - 15px) / 2);
+    min-width: 400px;
 }
 
 
@@ -356,12 +370,14 @@ iframe {
 .layout-large {
     justify-content: center;
     width: 100%;
+    min-width: 815px;
     max-width: 1920px;
     flex-direction: row;
 }
 
 .layout-large .player-column {
-    width: 50%;
+    width: calc((100% - 15px) / 2);
+    min-width: 400px;
 }
 
 
@@ -377,6 +393,95 @@ iframe {
 
 .layout-vertical .player-column {
     width: 70%;
+    min-width: 400px;
     max-width: 900px;
     margin-bottom: 20px;
+}
+/* ==========================================================
+   ЛОКАЛЬНОЕ ВИДЕО — МИНИМАЛИСТИЧНАЯ КНОПКА
+   ========================================================== */
+
+.local-video-button {
+    width: auto !important;
+    min-width: 0 !important;
+
+    height: 24px !important;
+
+    padding: 2px 7px !important;
+
+    margin: 0;
+
+    background: #252525;
+    color: #888;
+
+    border: 1px solid #333;
+    border-radius: 3px;
+
+    font-size: 11px !important;
+    font-weight: normal;
+
+    line-height: 18px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        color 0.15s,
+        border-color 0.15s;
+}
+
+.local-video-button:hover {
+    background: #303030;
+    color: #ccc;
+    border-color: #444;
+}
+
+.local-video-button:active {
+    transform: none;
+}
+/* ==========================================================
+   TWITCH EMBED — ТРЕБОВАНИЯ TWITCH
+   ========================================================== */
+
+.player-box {
+    min-width: 400px;
+    min-height: 300px;
+
+    width: 100%;
+    height: auto;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    display: block !important;
+}
+
+/* Контейнер, который создаёт Twitch Player */
+
+.player-box > div {
+    width: 100% !important;
+    height: 100% !important;
+
+    min-width: 400px !important;
+    min-height: 300px !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    display: block !important;
+}
+
+/* Сам Twitch iframe */
+
+.player-box iframe {
+    width: 100% !important;
+    height: 100% !important;
+
+    min-width: 400px !important;
+    min-height: 300px !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    display: block !important;
 }
