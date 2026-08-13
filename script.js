@@ -1789,7 +1789,7 @@ window.toggleTimersVisibility =
     };
 
 // ============================================================
-// ТЕСТ PLAY — ВРЕМЕННО ПЕРЕМЕЩАЕМ TWITCH-КОНТЕЙНЕР В VIEWPORT
+// ТЕСТ PLAY — ДЕЛАЕМ TWITCH-КОНТЕЙНЕР ВИДИМЫМ ДЛЯ VIEWPORT
 // ============================================================
 
 window.testPlay = function(playerNum) {
@@ -1809,7 +1809,6 @@ window.testPlay = function(playerNum) {
         return;
     }
 
-    // Находим именно контейнер Twitch
     const twitchContainer = document.getElementById(
         `twitch-player-${playerNum}`
     );
@@ -1827,40 +1826,40 @@ window.testPlay = function(playerNum) {
         return;
     }
 
-    // Показываем исходную геометрию
     console.log(
         'TEST PLAY: BEFORE RECT:',
         twitchContainer.getBoundingClientRect()
     );
 
-    console.log(
-        'TEST PLAY: BEFORE STYLE:',
-        window.getComputedStyle(twitchContainer)
-    );
+    // ========================================================
+    // СОХРАНЯЕМ ИСХОДНЫЕ СТИЛИ
+    // ========================================================
+
+    const oldPosition = twitchContainer.style.position;
+    const oldLeft = twitchContainer.style.left;
+    const oldTop = twitchContainer.style.top;
+    const oldWidth = twitchContainer.style.width;
+    const oldHeight = twitchContainer.style.height;
 
     // ========================================================
-    // ВРЕМЕННО ДЕЛАЕМ КОНТЕЙНЕР ВИДИМЫМ ДЛЯ VIEWPORT
+    // ВРЕМЕННО ПЕРЕМЕЩАЕМ ПЛЕЕР В VIEWPORT
     // ========================================================
 
     twitchContainer.style.position = 'fixed';
+
     twitchContainer.style.left = '0px';
     twitchContainer.style.top = '0px';
-    twitchContainer.style.width = '1px';
-    twitchContainer.style.height = '1px';
 
-    // Проверяем новую геометрию
+    twitchContainer.style.width = '640px';
+    twitchContainer.style.height = '360px';
+
     console.log(
         'TEST PLAY: AFTER RECT:',
         twitchContainer.getBoundingClientRect()
     );
 
-    console.log(
-        'TEST PLAY: AFTER STYLE:',
-        window.getComputedStyle(twitchContainer)
-    );
-
     // ========================================================
-    // ЗАПУСКАЕМ TWITCH
+    // ЗАПУСК
     // ========================================================
 
     console.log(
@@ -1869,6 +1868,24 @@ window.testPlay = function(playerNum) {
     );
 
     info.player.play();
+
+    // ========================================================
+    // ВОЗВРАЩАЕМ ПЛЕЕР НАЗАД
+    // ========================================================
+
+    setTimeout(function() {
+
+        twitchContainer.style.position = oldPosition;
+        twitchContainer.style.left = oldLeft;
+        twitchContainer.style.top = oldTop;
+        twitchContainer.style.width = oldWidth;
+        twitchContainer.style.height = oldHeight;
+
+        console.log(
+            'TEST PLAY: original position restored'
+        );
+
+    }, 1500);
 
 };
 
