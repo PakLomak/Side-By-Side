@@ -340,7 +340,7 @@ iframe {
 
 .video-container {
     display: flex;
-    gap: 2%;
+    gap: 25px;
     margin: 0 auto;
     transition: all 0.3s ease;
 }
