@@ -1815,6 +1815,29 @@ window.testPlay = function(playerNum) {
 
     const iframe = container.querySelector('iframe');
 
+    console.log('IFRAME CONTENT WINDOW:', iframe.contentWindow);
+console.log('IFRAME CONTENT DOCUMENT:', iframe.contentDocument);
+try {
+
+    console.log(
+        'IFRAME BODY:',
+        iframe.contentDocument?.body
+    );
+
+    console.log(
+        'IFRAME HTML:',
+        iframe.contentDocument?.documentElement
+    );
+
+} catch (e) {
+
+    console.log(
+        'IFRAME ACCESS ERROR:',
+        e
+    );
+
+}
+
     console.log('CONTAINER:', container);
     console.log('IFRAME:', iframe);
 
