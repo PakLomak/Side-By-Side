@@ -1,26 +1,28 @@
 // ============================================================
 // СОСТОЯНИЕ ПЛЕЕРОВ
 // ============================================================
-
-// Для каждого окна храним информацию:
 //
 // type:
 //     "youtube"
 //     "twitch-vod"
 //     "twitch-channel"
+//     "local"
 //
 // player:
-//     объект Twitch Player
+//     Twitch Player
 //
 // iframe:
-//     iframe YouTube
+//     YouTube iframe
+//
+// video:
+//     HTML5 <video> для локального файла
 //
 // twitchReady:
 //     готов ли Twitch Player
 //
 // pendingPlay:
-//     нужно ли запустить Twitch Player,
-//     когда он станет READY
+//     нужно ли запустить Twitch Player после READY
+// ============================================================
 
 const players = {
 
@@ -28,6 +30,7 @@ const players = {
         type: null,
         player: null,
         iframe: null,
+        video: null,
         twitchReady: false,
         pendingPlay: false
     },
@@ -36,6 +39,7 @@ const players = {
         type: null,
         player: null,
         iframe: null,
+        video: null,
         twitchReady: false,
         pendingPlay: false
     }
@@ -48,7 +52,6 @@ const players = {
 // ============================================================
 
 let videoTime1 = 0;
-
 let videoTime2 = 0;
 
 let localTimerInterval = null;
@@ -65,45 +68,28 @@ let timersVisible = true;
 function formatHighResTime(totalSeconds) {
 
     if (totalSeconds < 0) {
-
         totalSeconds = 0;
-
     }
 
     const mins =
-        Math.floor(
-            totalSeconds / 60
-        );
+        Math.floor(totalSeconds / 60);
 
     const secs =
-        Math.floor(
-            totalSeconds % 60
-        );
+        Math.floor(totalSeconds % 60);
 
     const ms =
-        Math.floor(
-            (totalSeconds % 1) * 1000
-        );
+        Math.floor((totalSeconds % 1) * 1000);
 
     const strMins =
-        mins
-            .toString()
-            .padStart(2, '0');
+        mins.toString().padStart(2, '0');
 
     const strSecs =
-        secs
-            .toString()
-            .padStart(2, '0');
+        secs.toString().padStart(2, '0');
 
     const strMs =
-        ms
-            .toString()
-            .padStart(3, '0');
+        ms.toString().padStart(3, '0');
 
-    return (
-        `${strMins}:${strSecs}.${strMs}`
-    );
-
+    return `${strMins}:${strSecs}.${strMs}`;
 }
 
 
@@ -113,19 +99,25 @@ function formatHighResTime(totalSeconds) {
 
 function updateTimerDisplays() {
 
-    document.getElementById(
-        'timer-display-1'
-    ).innerText =
-        formatHighResTime(
-            videoTime1
-        );
+    const timer1 =
+        document.getElementById('timer-display-1');
 
-    document.getElementById(
-        'timer-display-2'
-    ).innerText =
-        formatHighResTime(
-            videoTime2
-        );
+    const timer2 =
+        document.getElementById('timer-display-2');
+
+    if (timer1) {
+
+        timer1.innerText =
+            formatHighResTime(videoTime1);
+
+    }
+
+    if (timer2) {
+
+        timer2.innerText =
+            formatHighResTime(videoTime2);
+
+    }
 
 }
 
@@ -140,18 +132,14 @@ function getYouTubeVideoId(input) {
         input.trim();
 
     if (!value) {
-
         return null;
-
     }
 
 
     // Просто ID
 
     if (
-        /^[a-zA-Z0-9_-]{11}$/.test(
-            value
-        )
+        /^[a-zA-Z0-9_-]{11}$/.test(value)
     ) {
 
         return value;
@@ -164,33 +152,23 @@ function getYouTubeVideoId(input) {
         const url =
             new URL(value);
 
+        const hostname =
+            url.hostname.toLowerCase();
+
 
         // youtube.com/watch?v=XXXX
 
         if (
-
             (
-                url.hostname ===
-                    'www.youtube.com' ||
-
-                url.hostname ===
-                    'youtube.com' ||
-
-                url.hostname ===
-                    'm.youtube.com'
+                hostname === 'www.youtube.com' ||
+                hostname === 'youtube.com' ||
+                hostname === 'm.youtube.com'
             )
-
             &&
-
-            url.pathname ===
-                '/watch'
-
+            url.pathname === '/watch'
         ) {
 
-            return (
-                url.searchParams
-                    .get('v')
-            );
+            return url.searchParams.get('v');
 
         }
 
@@ -198,15 +176,14 @@ function getYouTubeVideoId(input) {
         // youtu.be/XXXX
 
         if (
-            url.hostname ===
-                'youtu.be'
+            hostname === 'youtu.be'
         ) {
 
             return (
                 url.pathname
                     .substring(1)
                     .split('/')[0]
-                    || null
+                || null
             );
 
         }
@@ -215,30 +192,18 @@ function getYouTubeVideoId(input) {
         // youtube.com/shorts/XXXX
 
         if (
-
             (
-                url.hostname ===
-                    'www.youtube.com' ||
-
-                url.hostname ===
-                    'youtube.com' ||
-
-                url.hostname ===
-                    'm.youtube.com'
+                hostname === 'www.youtube.com' ||
+                hostname === 'youtube.com' ||
+                hostname === 'm.youtube.com'
             )
-
             &&
-
-            url.pathname.startsWith(
-                '/shorts/'
-            )
-
+            url.pathname.startsWith('/shorts/')
         ) {
 
             return (
-                url.pathname
-                    .split('/')[2]
-                    || null
+                url.pathname.split('/')[2]
+                || null
             );
 
         }
@@ -266,9 +231,7 @@ function getTwitchInfo(input) {
         input.trim();
 
     if (!value) {
-
         return null;
-
     }
 
     try {
@@ -276,29 +239,18 @@ function getTwitchInfo(input) {
         const url =
             new URL(value);
 
+        const hostname =
+            url.hostname.toLowerCase();
 
-        // Проверяем домен Twitch
 
         const isTwitch =
-
-            url.hostname ===
-                'www.twitch.tv'
-
-            ||
-
-            url.hostname ===
-                'twitch.tv'
-
-            ||
-
-            url.hostname ===
-                'm.twitch.tv';
+            hostname === 'www.twitch.tv' ||
+            hostname === 'twitch.tv' ||
+            hostname === 'm.twitch.tv';
 
 
         if (!isTwitch) {
-
             return null;
-
         }
 
 
@@ -309,22 +261,14 @@ function getTwitchInfo(input) {
 
 
         if (!parts.length) {
-
             return null;
-
         }
 
 
-        // ----------------------------------------------------
         // Twitch VOD
-        //
-        // /videos/123456789
-        // ----------------------------------------------------
 
         if (
-            parts[0] ===
-                'videos'
-            &&
+            parts[0] === 'videos' &&
             parts[1]
         ) {
 
@@ -339,43 +283,25 @@ function getTwitchInfo(input) {
         }
 
 
-        // ----------------------------------------------------
         // Twitch channel
-        //
-        // /username
-        // ----------------------------------------------------
 
         const channel =
             parts[0];
 
 
-        // Служебные страницы Twitch
-        // не считаем каналами
-
         const reserved = [
 
             'directory',
-
             'downloads',
-
             'jobs',
-
             'p',
-
             'search',
-
             'settings',
-
             'subscriptions',
-
             'turbo',
-
             'wallet',
-
             'videos',
-
             'clip',
-
             'clips'
 
         ];
@@ -420,7 +346,6 @@ function detectVideoSource(input) {
     const youtubeId =
         getYouTubeVideoId(input);
 
-
     if (youtubeId) {
 
         return {
@@ -437,7 +362,6 @@ function detectVideoSource(input) {
     const twitchInfo =
         getTwitchInfo(input);
 
-
     if (twitchInfo) {
 
         return twitchInfo;
@@ -451,7 +375,7 @@ function detectVideoSource(input) {
 
 
 // ============================================================
-// ОПРЕДЕЛЯЕМ PARENT ДЛЯ TWITCH
+// TWITCH PARENT
 // ============================================================
 
 function getTwitchParent() {
@@ -459,32 +383,18 @@ function getTwitchParent() {
     let hostname =
         window.location.hostname;
 
-
-    // При открытии через localhost
-
     if (
-        hostname ===
-            'localhost'
-        ||
-        hostname ===
-            '127.0.0.1'
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1'
     ) {
 
         return hostname;
 
     }
 
-
-    // Если сайт открыт по IP
-
-    if (
-        hostname
-    ) {
-
+    if (hostname) {
         return hostname;
-
     }
-
 
     return 'localhost';
 
@@ -492,7 +402,7 @@ function getTwitchParent() {
 
 
 // ============================================================
-// ПОЛУЧАЕМ НАЧАЛЬНОЕ ВРЕМЯ
+// НАЧАЛЬНОЕ ВРЕМЯ
 // ============================================================
 
 function getStartTime(playerNum) {
@@ -522,19 +432,252 @@ function getStartTime(playerNum) {
 
 
     return (
+        (minutes * 60) +
+        seconds +
+        (milliseconds / 1000)
+    );
 
-        (minutes * 60)
+}
 
-        +
 
-        seconds
+// ============================================================
+// ОСТАНОВКА СТАРОГО ПЛЕЕРА
+// ============================================================
 
-        +
+function destroyPlayer(playerNum) {
 
-        (
-            milliseconds / 1000
-        )
+    const info =
+        players[playerNum];
 
+    if (!info) {
+        return;
+    }
+
+
+    // Twitch
+
+    if (
+        info.player &&
+        typeof info.player.pause === 'function'
+    ) {
+
+        try {
+
+            info.player.pause();
+
+        }
+
+        catch (error) {
+
+            console.log(
+                'Ошибка остановки Twitch:',
+                error
+            );
+
+        }
+
+    }
+
+
+    // Local video
+
+    if (info.video) {
+
+        try {
+
+            info.video.pause();
+
+            info.video.removeAttribute('src');
+
+            info.video.load();
+
+        }
+
+        catch (error) {
+
+            console.log(
+                'Ошибка остановки локального видео:',
+                error
+            );
+
+        }
+
+    }
+
+
+    players[playerNum] = {
+
+        type: null,
+        player: null,
+        iframe: null,
+        video: null,
+        twitchReady: false,
+        pendingPlay: false
+
+    };
+
+}
+
+
+// ============================================================
+// СОЗДАНИЕ ЛОКАЛЬНОГО VIDEO
+// ============================================================
+
+function createLocalVideoPlayer(
+    playerNum,
+    file,
+    startTime
+) {
+
+    const container =
+        document.getElementById(
+            'player' + playerNum
+        );
+
+
+    container.innerHTML = '';
+
+
+    const video =
+        document.createElement('video');
+
+
+    video.id =
+        'local-video-' + playerNum;
+
+
+    video.controls = true;
+
+    video.preload = 'auto';
+
+    video.playsInline = true;
+
+    video.style.width = '100%';
+
+    video.style.height = '100%';
+
+    video.style.display = 'block';
+
+    video.style.objectFit = 'contain';
+
+
+    // Создаём временный URL
+    // для локального файла
+
+    const objectUrl =
+        URL.createObjectURL(file);
+
+
+    video.src =
+        objectUrl;
+
+
+    container.appendChild(video);
+
+
+    players[playerNum] = {
+
+        type: 'local',
+
+        player: null,
+
+        iframe: null,
+
+        video: video,
+
+        twitchReady: false,
+
+        pendingPlay: false
+
+    };
+
+
+    // Когда видео загрузило метаданные
+
+    video.addEventListener(
+        'loadedmetadata',
+        function() {
+
+            let time =
+                startTime;
+
+
+            // Не позволяем поставить
+            // время дальше длины видео
+
+            if (
+                Number.isFinite(video.duration)
+            ) {
+
+                time =
+                    Math.min(
+                        time,
+                        video.duration
+                    );
+
+            }
+
+
+            try {
+
+                video.currentTime =
+                    time;
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    'Ошибка установки времени:',
+                    error
+                );
+
+            }
+
+
+            if (playerNum === 1) {
+
+                videoTime1 =
+                    time;
+
+            }
+
+            else {
+
+                videoTime2 =
+                    time;
+
+            }
+
+
+            updateTimerDisplays();
+
+        }
+    );
+
+
+    // Освобождаем Object URL
+    // после полной очистки видео
+
+    video.addEventListener(
+        'emptied',
+        function() {
+
+            try {
+
+                URL.revokeObjectURL(
+                    objectUrl
+                );
+
+            }
+
+            catch (error) {
+
+                // Ничего не делаем
+
+            }
+
+        }
     );
 
 }
@@ -556,15 +699,11 @@ function createYouTubePlayer(
         );
 
 
-    // Очищаем старый плеер
-
     container.innerHTML = '';
 
 
     const iframe =
-        document.createElement(
-            'iframe'
-        );
+        document.createElement('iframe');
 
 
     iframe.id =
@@ -572,27 +711,16 @@ function createYouTubePlayer(
 
 
     const start =
-        Math.floor(
-            startTime
-        );
+        Math.floor(startTime);
 
 
     iframe.src =
-
         'https://www.youtube.com/embed/' +
-
-        encodeURIComponent(
-            videoId
-        ) +
-
+        encodeURIComponent(videoId) +
         '?enablejsapi=1' +
-
         '&autoplay=0' +
-
         '&controls=1' +
-
         '&start=' +
-
         start;
 
 
@@ -614,9 +742,17 @@ function createYouTubePlayer(
     );
 
 
-    container.appendChild(
-        iframe
-    );
+    iframe.style.width =
+        '100%';
+
+    iframe.style.height =
+        '100%';
+
+    iframe.style.border =
+        '0';
+
+
+    container.appendChild(iframe);
 
 
     players[playerNum] = {
@@ -626,6 +762,8 @@ function createYouTubePlayer(
         player: null,
 
         iframe: iframe,
+
+        video: null,
 
         twitchReady: false,
 
@@ -683,12 +821,8 @@ function createTwitchPlayer(
     container.innerHTML = '';
 
 
-    // Создаём уникальный контейнер
-
     const twitchContainer =
-        document.createElement(
-            'div'
-        );
+        document.createElement('div');
 
 
     twitchContainer.id =
@@ -699,7 +833,6 @@ function createTwitchPlayer(
     twitchContainer.style.width =
         '100%';
 
-
     twitchContainer.style.height =
         '100%';
 
@@ -709,237 +842,236 @@ function createTwitchPlayer(
     );
 
 
-    // Twitch требует parent
-
     const parent =
         getTwitchParent();
 
 
-    // --------------------------------------------------------
-    // VOD
-    // --------------------------------------------------------
+    const options = {
+
+        width: '100%',
+
+        height: '100%',
+
+        autoplay: false,
+
+        parent: [
+            parent
+        ]
+
+    };
+
 
     if (
-        twitchInfo.type ===
-            'twitch-vod'
+        twitchInfo.type === 'twitch-vod'
     ) {
 
-        const twitchPlayer =
-            new Twitch.Player(
-                twitchContainer.id,
-                {
-
-                    width: '100%',
-
-                    height: '100%',
-
-                    video:
-                        'v' +
-                        twitchInfo.id,
-
-                    autoplay:
-                        false,
-
-                    parent: [
-                        parent
-                    ]
-
-                }
-            );
-
-
-        players[playerNum] = {
-
-            type: 'twitch-vod',
-
-            player:
-                twitchPlayer,
-
-            iframe: null,
-
-            twitchReady: false,
-
-            pendingPlay: false
-
-        };
-
-
-twitchPlayer.addEventListener(
-    Twitch.Player.READY,
-    function() {
-
-        const info =
-            players[playerNum];
-
-
-        if (!info) {
-
-            return;
-
-        }
-
-
-        info.twitchReady = true;
-
-
-        // Выставляем начальную позицию
-
-        if (
-            startTime > 0
-        ) {
-
-            twitchPlayer.seek(
-                startTime
-            );
-
-        }
-
-
-        // Если пользователь уже нажал PLAY
-        // до того, как Twitch стал READY,
-        // запускаем после небольшой задержки.
-
-        if (
-            info.pendingPlay
-        ) {
-
-            info.pendingPlay = false;
-
-
-            setTimeout(
-                function() {
-
-                    // Проверяем, что плеер
-                    // всё ещё существует.
-
-                    if (
-                        players[playerNum]
-                        &&
-                        players[playerNum].player
-                    ) {
-
-                        players[playerNum]
-                            .player
-                            .play();
-
-                    }
-
-                },
-                100
-            );
-
-        }
+        options.video =
+            'v' + twitchInfo.id;
 
     }
-);
 
+
+    if (
+        twitchInfo.type === 'twitch-channel'
+    ) {
+
+        options.channel =
+            twitchInfo.id;
+
+    }
+
+
+    const twitchPlayer =
+        new Twitch.Player(
+            twitchContainer.id,
+            options
+        );
+
+
+    players[playerNum] = {
+
+        type: twitchInfo.type,
+
+        player: twitchPlayer,
+
+        iframe: null,
+
+        video: null,
+
+        twitchReady: false,
+
+        pendingPlay: false
+
+    };
+
+
+    twitchPlayer.addEventListener(
+        Twitch.Player.READY,
+        function() {
+
+            const info =
+                players[playerNum];
+
+
+            if (!info) {
+                return;
+            }
+
+
+            info.twitchReady =
+                true;
+
+
+            // VOD: начальная позиция
+
+            if (
+                twitchInfo.type ===
+                    'twitch-vod' &&
+                startTime > 0
+            ) {
+
+                try {
+
+                    twitchPlayer.seek(
+                        startTime
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.log(
+                        'Ошибка Twitch seek:',
+                        error
+                    );
+
+                }
+
+            }
+
+
+            // Если PLAY был нажат
+            // до READY
+
+            if (
+                info.pendingPlay
+            ) {
+
+                info.pendingPlay =
+                    false;
+
+
+                setTimeout(
+                    function() {
+
+                        if (
+                            players[playerNum] &&
+                            players[playerNum].player
+                        ) {
+
+                            players[playerNum]
+                                .player
+                                .play();
+
+                        }
+
+                    },
+                    100
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// ПРОВЕРКА ЛОКАЛЬНОГО ФАЙЛА
+// ============================================================
+
+function isLocalVideoFile(input) {
+
+    if (
+        !input ||
+        !input.files ||
+        !input.files.length
+    ) {
+
+        return false;
+
+    }
+
+
+    const file =
+        input.files[0];
+
+
+    return (
+        file.type.startsWith('video/')
+    );
+
+}
+
+
+// ============================================================
+// ЗАГРУЗКА ЛОКАЛЬНОГО ФАЙЛА
+// ============================================================
+
+function loadLocalVideo(
+    playerNum,
+    file
+) {
+
+    if (!file) {
+        return;
+    }
+
+
+    if (
+        !file.type.startsWith('video/')
+    ) {
+
+        alert(
+            'Выбранный файл не является видео.'
+        );
 
         return;
 
     }
 
 
-    // --------------------------------------------------------
-    // LIVE CHANNEL
-    // --------------------------------------------------------
-
-    if (
-        twitchInfo.type ===
-            'twitch-channel'
-    ) {
-
-        const twitchPlayer =
-            new Twitch.Player(
-                twitchContainer.id,
-                {
-
-                    width: '100%',
-
-                    height: '100%',
-
-                    channel:
-                        twitchInfo.id,
-
-                    autoplay:
-                        false,
-
-                    parent: [
-                        parent
-                    ]
-
-                }
-            );
+    const startTime =
+        getStartTime(playerNum);
 
 
-        players[playerNum] = {
-
-            type: 'twitch-channel',
-
-            player:
-                twitchPlayer,
-
-            iframe: null,
-
-            twitchReady: false,
-
-            pendingPlay: false
-
-        };
+    destroyPlayer(playerNum);
 
 
-twitchPlayer.addEventListener(
-    Twitch.Player.READY,
-    function() {
+    if (playerNum === 1) {
 
-        const info =
-            players[playerNum];
-
-
-        if (!info) {
-
-            return;
-
-        }
-
-
-        info.twitchReady = true;
-
-
-        // Если пользователь уже нажал PLAY
-        // до того, как Twitch стал READY.
-
-        if (
-            info.pendingPlay
-        ) {
-
-            info.pendingPlay = false;
-
-
-            setTimeout(
-                function() {
-
-                    if (
-                        players[playerNum]
-                        &&
-                        players[playerNum].player
-                    ) {
-
-                        players[playerNum]
-                            .player
-                            .play();
-
-                    }
-
-                },
-                100
-            );
-
-        }
+        videoTime1 =
+            startTime;
 
     }
-);
+
+    else {
+
+        videoTime2 =
+            startTime;
 
     }
+
+
+    updateTimerDisplays();
+
+
+    createLocalVideoPlayer(
+        playerNum,
+        file,
+        startTime
+    );
 
 }
 
@@ -954,13 +1086,46 @@ window.loadEmbedVideo =
         const input =
             document.getElementById(
                 'code' + playerNum
-            ).value;
+            );
+
+
+        const value =
+            input.value.trim();
+
+
+        // ----------------------------------------------------
+        // Если поле пустое — предлагаем выбрать локальный файл
+        // ----------------------------------------------------
+
+        if (!value) {
+
+            const fileInput =
+                document.getElementById(
+                    'local-file-' + playerNum
+                );
+
+
+            if (fileInput) {
+
+                fileInput.click();
+
+            }
+
+            else {
+
+                alert(
+                    'Вставьте ссылку YouTube/Twitch или выберите локальный файл.'
+                );
+
+            }
+
+            return;
+
+        }
 
 
         const source =
-            detectVideoSource(
-                input
-            );
+            detectVideoSource(value);
 
 
         if (!source) {
@@ -983,7 +1148,9 @@ window.loadEmbedVideo =
 
                 "Twitch канал:\n" +
 
-                "https://www.twitch.tv/username"
+                "https://www.twitch.tv/username\n\n" +
+
+                "Или можно выбрать локальный видеофайл."
 
             );
 
@@ -994,28 +1161,17 @@ window.loadEmbedVideo =
 
 
         const startTime =
-            getStartTime(
-                playerNum
-            );
+            getStartTime(playerNum);
 
 
-        // ----------------------------------------------------
-        // Сохраняем локальное время
-        // ----------------------------------------------------
-
-        if (
-            playerNum === 1
-        ) {
+        if (playerNum === 1) {
 
             videoTime1 =
                 startTime;
 
         }
 
-
-        if (
-            playerNum === 2
-        ) {
+        else {
 
             videoTime2 =
                 startTime;
@@ -1026,42 +1182,7 @@ window.loadEmbedVideo =
         updateTimerDisplays();
 
 
-        // ----------------------------------------------------
-        // Если уже был Twitch Player
-        // ----------------------------------------------------
-
-        const oldPlayer =
-            players[playerNum];
-
-
-        if (
-            oldPlayer &&
-            oldPlayer.player
-        ) {
-
-            try {
-
-                if (
-                    typeof oldPlayer.player.pause ===
-                    'function'
-                ) {
-
-                    oldPlayer.player.pause();
-
-                }
-
-            }
-
-            catch (error) {
-
-                console.log(
-                    'Ошибка остановки старого плеера:',
-                    error
-                );
-
-            }
-
-        }
+        destroyPlayer(playerNum);
 
 
         // ----------------------------------------------------
@@ -1069,20 +1190,14 @@ window.loadEmbedVideo =
         // ----------------------------------------------------
 
         if (
-            source.type ===
-                'youtube'
+            source.type === 'youtube'
         ) {
 
             createYouTubePlayer(
-
                 playerNum,
-
                 source.id,
-
                 startTime
-
             );
-
 
             return;
 
@@ -1094,31 +1209,55 @@ window.loadEmbedVideo =
         // ----------------------------------------------------
 
         if (
-
-            source.type ===
-                'twitch-vod'
-
-            ||
-
-            source.type ===
-                'twitch-channel'
-
+            source.type === 'twitch-vod' ||
+            source.type === 'twitch-channel'
         ) {
 
             createTwitchPlayer(
-
                 playerNum,
-
                 source,
-
                 startTime
-
             );
-
 
             return;
 
         }
+
+    };
+
+
+// ============================================================
+// ОБРАБОТЧИК ВЫБОРА ЛОКАЛЬНОГО ФАЙЛА
+// ============================================================
+
+window.handleLocalFile =
+    function(playerNum, input) {
+
+        if (
+            !input ||
+            !input.files ||
+            !input.files.length
+        ) {
+
+            return;
+
+        }
+
+
+        const file =
+            input.files[0];
+
+
+        loadLocalVideo(
+            playerNum,
+            file
+        );
+
+
+        // Позволяем повторно выбрать
+        // тот же самый файл
+
+        input.value = '';
 
     };
 
@@ -1133,12 +1272,14 @@ function sendYouTubeCommand(
     argsArray = []
 ) {
 
-    const iframe =
-        players[playerNum]
-            .iframe;
+    const info =
+        players[playerNum];
 
 
-    if (!iframe) {
+    if (
+        !info ||
+        !info.iframe
+    ) {
 
         return;
 
@@ -1157,7 +1298,7 @@ function sendYouTubeCommand(
         });
 
 
-    iframe.contentWindow.postMessage(
+    info.iframe.contentWindow.postMessage(
         message,
         '*'
     );
@@ -1176,6 +1317,45 @@ function playVideo(playerNum) {
 
 
     if (!info) {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Local
+    // --------------------------------------------------------
+
+    if (
+        info.type === 'local'
+    ) {
+
+        if (!info.video) {
+            return;
+        }
+
+
+        const promise =
+            info.video.play();
+
+
+        if (
+            promise &&
+            typeof promise.catch === 'function'
+        ) {
+
+            promise.catch(
+                function(error) {
+
+                    console.log(
+                        'Ошибка запуска локального видео:',
+                        error
+                    );
+
+                }
+            );
+
+        }
+
 
         return;
 
@@ -1187,8 +1367,7 @@ function playVideo(playerNum) {
     // --------------------------------------------------------
 
     if (
-        info.type ===
-            'youtube'
+        info.type === 'youtube'
     ) {
 
         sendYouTubeCommand(
@@ -1207,28 +1386,16 @@ function playVideo(playerNum) {
     // --------------------------------------------------------
 
     if (
-        info.type ===
-            'twitch-vod'
-        ||
-        info.type ===
-            'twitch-channel'
+        info.type === 'twitch-vod' ||
+        info.type === 'twitch-channel'
     ) {
 
-        if (
-            !info.player
-        ) {
-
+        if (!info.player) {
             return;
-
         }
 
 
-        // Twitch ещё не готов.
-        // Запоминаем команду запуска.
-
-        if (
-            !info.twitchReady
-        ) {
+        if (!info.twitchReady) {
 
             info.pendingPlay =
                 true;
@@ -1256,19 +1423,31 @@ function pauseVideo(playerNum) {
 
 
     if (!info) {
+        return;
+    }
+
+
+    // Local
+
+    if (
+        info.type === 'local'
+    ) {
+
+        if (info.video) {
+
+            info.video.pause();
+
+        }
 
         return;
 
     }
 
 
-    // --------------------------------------------------------
     // YouTube
-    // --------------------------------------------------------
 
     if (
-        info.type ===
-            'youtube'
+        info.type === 'youtube'
     ) {
 
         sendYouTubeCommand(
@@ -1276,33 +1455,23 @@ function pauseVideo(playerNum) {
             'pauseVideo'
         );
 
-
         return;
 
     }
 
 
-    // --------------------------------------------------------
     // Twitch
-    // --------------------------------------------------------
 
     if (
-        info.type ===
-            'twitch-vod'
-        ||
-        info.type ===
-            'twitch-channel'
+        info.type === 'twitch-vod' ||
+        info.type === 'twitch-channel'
     ) {
-
-        // Отменяем отложенный запуск
 
         info.pendingPlay =
             false;
 
 
-        if (
-            info.player
-        ) {
+        if (info.player) {
 
             info.player.pause();
 
@@ -1323,9 +1492,7 @@ function seekVideo(
 ) {
 
     if (time < 0) {
-
         time = 0;
-
     }
 
 
@@ -1334,6 +1501,52 @@ function seekVideo(
 
 
     if (!info) {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Local
+    // --------------------------------------------------------
+
+    if (
+        info.type === 'local'
+    ) {
+
+        if (info.video) {
+
+            try {
+
+                if (
+                    Number.isFinite(
+                        info.video.duration
+                    )
+                ) {
+
+                    time =
+                        Math.min(
+                            time,
+                            info.video.duration
+                        );
+
+                }
+
+
+                info.video.currentTime =
+                    time;
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    'Ошибка перемотки локального видео:',
+                    error
+                );
+
+            }
+
+        }
 
         return;
 
@@ -1345,23 +1558,17 @@ function seekVideo(
     // --------------------------------------------------------
 
     if (
-        info.type ===
-            'youtube'
+        info.type === 'youtube'
     ) {
 
         sendYouTubeCommand(
-
             playerNum,
-
             'seekTo',
-
             [
                 time,
                 true
             ]
-
         );
-
 
         return;
 
@@ -1373,20 +1580,29 @@ function seekVideo(
     // --------------------------------------------------------
 
     if (
-        info.type ===
-            'twitch-vod'
+        info.type === 'twitch-vod'
     ) {
 
-        if (
-            info.player
-        ) {
+        if (info.player) {
 
-            info.player.seek(
-                time
-            );
+            try {
+
+                info.player.seek(
+                    time
+                );
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    'Ошибка Twitch seek:',
+                    error
+                );
+
+            }
 
         }
-
 
         return;
 
@@ -1398,16 +1614,57 @@ function seekVideo(
     // --------------------------------------------------------
 
     if (
-        info.type ===
-            'twitch-channel'
+        info.type === 'twitch-channel'
     ) {
 
         console.log(
             'Перемотка Twitch Live недоступна.'
         );
 
+    }
 
-        return;
+}
+
+
+// ============================================================
+// СИНХРОНИЗАЦИЯ ВРЕМЕНИ ЛОКАЛЬНОГО VIDEO
+// ============================================================
+//
+// Если есть локальный файл, берём его реальное currentTime.
+// Это делает таймер намного точнее.
+// ============================================================
+
+function updateLocalVideoTimes() {
+
+    const info1 =
+        players[1];
+
+    const info2 =
+        players[2];
+
+
+    if (
+        info1 &&
+        info1.type === 'local' &&
+        info1.video &&
+        !info1.video.paused
+    ) {
+
+        videoTime1 =
+            info1.video.currentTime;
+
+    }
+
+
+    if (
+        info2 &&
+        info2.type === 'local' &&
+        info2.video &&
+        !info2.video.paused
+    ) {
+
+        videoTime2 =
+            info2.video.currentTime;
 
     }
 
@@ -1420,39 +1677,74 @@ function seekVideo(
 
 function startLocalTimer() {
 
-    if (
-        !isCurrentlyPlaying
-    ) {
-
-        isCurrentlyPlaying =
-            true;
-
-
-        localTimerInterval =
-            setInterval(
-                function() {
-
-                    videoTime1 +=
-                        0.01;
-
-
-                    videoTime2 +=
-                        0.01;
-
-
-                    updateTimerDisplays();
-
-                },
-                10
-            );
-
+    if (isCurrentlyPlaying) {
+        return;
     }
+
+
+    isCurrentlyPlaying =
+        true;
+
+
+    localTimerInterval =
+        setInterval(
+            function() {
+
+                // Если локальное видео —
+                // используем его настоящий currentTime.
+
+                updateLocalVideoTimes();
+
+
+                // Для остальных источников
+                // оставляем существующий локальный счётчик.
+
+                const info1 =
+                    players[1];
+
+                const info2 =
+                    players[2];
+
+
+                if (
+                    !(
+                        info1 &&
+                        info1.type === 'local' &&
+                        info1.video &&
+                        !info1.video.paused
+                    )
+                ) {
+
+                    videoTime1 += 0.01;
+
+                }
+
+
+                if (
+                    !(
+                        info2 &&
+                        info2.type === 'local' &&
+                        info2.video &&
+                        !info2.video.paused
+                    )
+                ) {
+
+                    videoTime2 += 0.01;
+
+                }
+
+
+                updateTimerDisplays();
+
+            },
+            10
+        );
 
 }
 
 
 // ============================================================
-// ОЖИДАНИЕ ГОТОВНОСТИ TWITCH
+// ОЖИДАНИЕ TWITCH READY
 // ============================================================
 
 function waitForTwitchPlaying(playerNum) {
@@ -1473,12 +1765,9 @@ function waitForTwitchPlaying(playerNum) {
             }
 
 
-            // YouTube не требует
-            // ожидания Twitch
-
             if (
-                info.type ===
-                    'youtube'
+                info.type === 'youtube' ||
+                info.type === 'local'
             ) {
 
                 resolve(true);
@@ -1488,11 +1777,7 @@ function waitForTwitchPlaying(playerNum) {
             }
 
 
-            // Если Twitch уже готов
-
-            if (
-                info.twitchReady
-            ) {
+            if (info.twitchReady) {
 
                 resolve(true);
 
@@ -1500,8 +1785,6 @@ function waitForTwitchPlaying(playerNum) {
 
             }
 
-
-            // Ждём READY
 
             const checkInterval =
                 setInterval(
@@ -1520,7 +1803,6 @@ function waitForTwitchPlaying(playerNum) {
                                 checkInterval
                             );
 
-
                             resolve(true);
 
                         }
@@ -1529,7 +1811,6 @@ function waitForTwitchPlaying(playerNum) {
                     50
                 );
 
-            // Защита от бесконечного ожидания
 
             setTimeout(
                 function() {
@@ -1551,6 +1832,7 @@ function waitForTwitchPlaying(playerNum) {
                         resolve(true);
 
                     }
+
                     else {
 
                         resolve(false);
@@ -1573,8 +1855,6 @@ function waitForTwitchPlaying(playerNum) {
 
 window.syncPlay =
     function() {
-
-        console.log('SYNC PLAY');
 
         playVideo(1);
 
@@ -1602,6 +1882,10 @@ window.syncPause =
         );
 
 
+        localTimerInterval =
+            null;
+
+
         isCurrentlyPlaying =
             false;
 
@@ -1621,14 +1905,12 @@ window.syncStop =
         const start1 =
             getStartTime(1);
 
-
         const start2 =
             getStartTime(2);
 
 
         videoTime1 =
             start1;
-
 
         videoTime2 =
             start2;
@@ -1701,7 +1983,6 @@ window.syncForward =
         videoTime1 +=
             secondsToForward;
 
-
         videoTime2 +=
             secondsToForward;
 
@@ -1735,12 +2016,10 @@ window.toggleTimersVisibility =
                 'timer-display-1'
             );
 
-
         const timer2 =
             document.getElementById(
                 'timer-display-2'
             );
-
 
         const btn =
             document.querySelector(
@@ -1753,13 +2032,16 @@ window.toggleTimersVisibility =
             timer1.style.display =
                 'none';
 
-
             timer2.style.display =
                 'none';
 
 
-            btn.style.background =
-                '#424242';
+            if (btn) {
+
+                btn.style.background =
+                    '#424242';
+
+            }
 
 
             timersVisible =
@@ -1772,13 +2054,16 @@ window.toggleTimersVisibility =
             timer1.style.display =
                 'block';
 
-
             timer2.style.display =
                 'block';
 
 
-            btn.style.background =
-                '#00796b';
+            if (btn) {
+
+                btn.style.background =
+                    '#00796b';
+
+            }
 
 
             timersVisible =

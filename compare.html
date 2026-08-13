@@ -39,10 +39,18 @@
 
         <div class="input-group">
 
-            <textarea
-                id="code1"
-                placeholder="Вставьте ссылку YouTube или Twitch для Видео 1"
-            ></textarea>
+           <textarea
+    id="code1"
+    placeholder="Вставьте ссылку YouTube или Twitch для Видео 1"
+></textarea>
+
+<input
+    type="file"
+    id="local-file-1"
+    accept="video/*"
+    style="display: none;"
+    onchange="handleLocalFile(1, this)"
+>
 
 
             <div class="time-input-block">
@@ -100,11 +108,18 @@
 
         <div class="input-group">
 
-            <textarea
-                id="code2"
-                placeholder="Вставьте ссылку YouTube или Twitch для Видео 2"
-            ></textarea>
+          <textarea
+    id="code2"
+    placeholder="Вставьте ссылку YouTube или Twitch для Видео 2"
+></textarea>
 
+<input
+    type="file"
+    id="local-file-2"
+    accept="video/*"
+    style="display: none;"
+    onchange="handleLocalFile(2, this)"
+>
 
             <div class="time-input-block">
 
