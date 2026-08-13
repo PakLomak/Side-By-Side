@@ -1799,68 +1799,124 @@ window.testPlay = function(playerNum) {
 
     const info = players[playerNum];
 
-    if (!info) {
-        console.log('TEST PLAY: player info not found');
+    if (!info || !info.player) {
+        console.log('TEST PLAY: player not found');
         return;
     }
 
-    if (!info.player) {
-        console.log('TEST PLAY: Twitch player not found');
-        return;
-    }
-
-    const twitchContainer = document.getElementById(
+    const container = document.getElementById(
         `twitch-player-${playerNum}`
     );
 
-    console.log(
-        'TEST PLAY: twitchContainer:',
-        twitchContainer
-    );
-
-    if (!twitchContainer) {
-        console.log(
-            'TEST PLAY: twitchContainer not found'
-        );
-
+    if (!container) {
+        console.log('TEST PLAY: container not found');
         return;
     }
 
-    console.log(
-        'TEST PLAY: BEFORE RECT:',
-        twitchContainer.getBoundingClientRect()
-    );
+    const iframe = container.querySelector('iframe');
 
-    // ========================================================
-    // СОХРАНЯЕМ ИСХОДНЫЕ СТИЛИ
-    // ========================================================
+    console.log('CONTAINER:', container);
+    console.log('IFRAME:', iframe);
 
-    const oldPosition = twitchContainer.style.position;
-    const oldLeft = twitchContainer.style.left;
-    const oldTop = twitchContainer.style.top;
-    const oldWidth = twitchContainer.style.width;
-    const oldHeight = twitchContainer.style.height;
-
-    // ========================================================
-    // ВРЕМЕННО ПЕРЕМЕЩАЕМ ПЛЕЕР В VIEWPORT
-    // ========================================================
-
-    twitchContainer.style.position = 'fixed';
-
-    twitchContainer.style.left = '0px';
-    twitchContainer.style.top = '0px';
-
-    twitchContainer.style.width = '640px';
-    twitchContainer.style.height = '360px';
+    // --------------------------------------------------------
+    // Проверяем visibility самого контейнера
+    // --------------------------------------------------------
 
     console.log(
-        'TEST PLAY: AFTER RECT:',
-        twitchContainer.getBoundingClientRect()
+        'CONTAINER checkVisibility:',
+        container.checkVisibility({
+            opacityProperty: true,
+            visibilityProperty: true,
+            contentVisibilityAuto: true
+        })
     );
 
-    // ========================================================
-    // ЗАПУСК
-    // ========================================================
+    console.log(
+        'CONTAINER computed:',
+        {
+            display: getComputedStyle(container).display,
+            visibility: getComputedStyle(container).visibility,
+            opacity: getComputedStyle(container).opacity,
+            contentVisibility:
+                getComputedStyle(container).contentVisibility
+        }
+    );
+
+    // --------------------------------------------------------
+    // Проверяем iframe
+    // --------------------------------------------------------
+
+    if (iframe) {
+
+        console.log(
+            'IFRAME checkVisibility:',
+            iframe.checkVisibility({
+                opacityProperty: true,
+                visibilityProperty: true,
+                contentVisibilityAuto: true
+            })
+        );
+
+        console.log(
+            'IFRAME computed:',
+            {
+                display: getComputedStyle(iframe).display,
+                visibility: getComputedStyle(iframe).visibility,
+                opacity: getComputedStyle(iframe).opacity,
+                contentVisibility:
+                    getComputedStyle(iframe).contentVisibility
+            }
+        );
+
+        console.log(
+            'IFRAME rect:',
+            iframe.getBoundingClientRect()
+        );
+    }
+
+    // --------------------------------------------------------
+    // Пробуем сделать контейнер максимально явно видимым
+    // --------------------------------------------------------
+
+    container.style.display = 'block';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    container.style.contentVisibility = 'visible';
+
+    container.style.position = 'fixed';
+    container.style.left = '0px';
+    container.style.top = '0px';
+    container.style.width = '640px';
+    container.style.height = '360px';
+
+    if (iframe) {
+
+        iframe.style.display = 'block';
+        iframe.style.visibility = 'visible';
+        iframe.style.opacity = '1';
+        iframe.style.contentVisibility = 'visible';
+
+        iframe.style.width = '640px';
+        iframe.style.height = '360px';
+    }
+
+    console.log(
+        'AFTER checkVisibility:',
+        container.checkVisibility({
+            opacityProperty: true,
+            visibilityProperty: true,
+            contentVisibilityAuto: true
+        })
+    );
+
+    console.log(
+        'AFTER rect:',
+        container.getBoundingClientRect()
+    );
+
+    // --------------------------------------------------------
+    // PLAY
+    // --------------------------------------------------------
 
     console.log(
         'TEST PLAY: calling player.play()',
@@ -1868,25 +1924,6 @@ window.testPlay = function(playerNum) {
     );
 
     info.player.play();
-
-    // ========================================================
-    // ВОЗВРАЩАЕМ ПЛЕЕР НАЗАД
-    // ========================================================
-
-    setTimeout(function() {
-
-        twitchContainer.style.position = oldPosition;
-        twitchContainer.style.left = oldLeft;
-        twitchContainer.style.top = oldTop;
-        twitchContainer.style.width = oldWidth;
-        twitchContainer.style.height = oldHeight;
-
-        console.log(
-            'TEST PLAY: original position restored'
-        );
-
-    }, 1500);
-
 };
 
 // ============================================================
