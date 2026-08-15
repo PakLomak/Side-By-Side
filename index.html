@@ -2,7 +2,6 @@
 <html lang="ru">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -21,7 +20,6 @@
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
 
@@ -39,66 +37,135 @@
 
         <div class="input-group">
 
-           <textarea
-    id="code1"
-    placeholder="Вставьте ссылку YouTube или Twitch для Видео 1"
-></textarea>
+            <!-- Ссылка + кнопки -->
+            <div class="video-source-row">
 
-<input
-    type="file"
-    id="local-file-1"
-    accept="video/*"
-    style="display: none;"
-    onchange="handleLocalFile(1, this)"
->
+                <textarea
+                    id="code1"
+                    placeholder="Вставьте ссылку YouTube или Twitch для Видео 1"
+                ></textarea>
 
+                <button
+                    class="btn-open-video"
+                    onclick="loadEmbedVideo(1)"
+                    title="Открыть видео"
+                >
+                    Открыть
+                </button>
 
-            <div class="time-input-block">
-
-                <span>Начать с:</span>
-
+                <button
+                    class="btn-local-video"
+                    onclick="document.getElementById('local-file-1').click()"
+                    title="Выбрать локальное видео"
+                >
+                    📁
+                </button>
 
                 <input
-                    type="number"
-                    id="min1"
-                    value="0"
-                    min="0"
+                    type="file"
+                    id="local-file-1"
+                    accept="video/*"
+                    style="display: none;"
+                    onchange="handleLocalFile(1, this)"
                 >
-
-                <span>мин</span>
-
-
-                <input
-                    type="number"
-                    id="sec1"
-                    value="0"
-                    min="0"
-                    max="59"
-                >
-
-                <span>сек</span>
-
-
-                <input
-                    type="number"
-                    id="cs1"
-                    value="0"
-                    min="0"
-                    max="999"
-                    step="1"
-                >
-
-                <span>мс</span>
 
             </div>
 
 
-            <button
-                class="btn-load"
-                onclick="loadEmbedVideo(1)"
-            >
-                Открыть Видео 1
-            </button>
+            <!-- Настройки -->
+            <div class="video-settings-row">
+
+                <!-- Начальное время -->
+                <div class="time-input-block">
+
+                    <span>Начать с:</span>
+
+                    <input
+                        type="number"
+                        id="hour1"
+                        value="0"
+                        min="0"
+                        max="999"
+                    >
+
+                    <span>ч</span>
+
+                    <input
+                        type="number"
+                        id="min1"
+                        value="0"
+                        min="0"
+                        max="59"
+                    >
+
+                    <span>мин</span>
+
+                    <input
+                        type="number"
+                        id="sec1"
+                        value="0"
+                        min="0"
+                        max="59"
+                    >
+
+                    <span>сек</span>
+
+                    <input
+                        type="number"
+                        id="cs1"
+                        value="0"
+                        min="0"
+                        max="999"
+                        step="1"
+                    >
+
+                    <span>мс</span>
+
+                    <button
+                        class="btn-reset-start-time"
+                        onclick="resetStartTime(1)"
+                        title="Сбросить начальное время"
+                    >
+                        ↺
+                    </button>
+
+                </div>
+
+
+                <!-- FPS -->
+                <div class="fps-input-block">
+
+                    <span>Кадры:</span>
+
+                    <input
+                        type="number"
+                        id="fps1"
+                        value="60"
+                        min="1"
+                        max="1000"
+                        step="0.01"
+                    >
+
+                    <span>FPS</span>
+
+                    <span
+                        id="fps-status-1"
+                        class="fps-status"
+                    >
+                        ручной
+                    </span>
+
+                    <button
+                        class="btn-fps-refresh"
+                        onclick="refreshFPS(1)"
+                        title="Обновить FPS"
+                    >
+                        ↻
+                    </button>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -108,65 +175,135 @@
 
         <div class="input-group">
 
-          <textarea
-    id="code2"
-    placeholder="Вставьте ссылку YouTube или Twitch для Видео 2"
-></textarea>
+            <!-- Ссылка + кнопки -->
+            <div class="video-source-row">
 
-<input
-    type="file"
-    id="local-file-2"
-    accept="video/*"
-    style="display: none;"
-    onchange="handleLocalFile(2, this)"
->
+                <textarea
+                    id="code2"
+                    placeholder="Вставьте ссылку YouTube или Twitch для Видео 2"
+                ></textarea>
 
-            <div class="time-input-block">
+                <button
+                    class="btn-open-video"
+                    onclick="loadEmbedVideo(2)"
+                    title="Открыть видео"
+                >
+                    Открыть
+                </button>
 
-                <span>Начать с:</span>
-
+                <button
+                    class="btn-local-video"
+                    onclick="document.getElementById('local-file-2').click()"
+                    title="Выбрать локальное видео"
+                >
+                    📁
+                </button>
 
                 <input
-                    type="number"
-                    id="min2"
-                    value="0"
-                    min="0"
+                    type="file"
+                    id="local-file-2"
+                    accept="video/*"
+                    style="display: none;"
+                    onchange="handleLocalFile(2, this)"
                 >
-
-                <span>мин</span>
-
-
-                <input
-                    type="number"
-                    id="sec2"
-                    value="0"
-                    min="0"
-                    max="59"
-                >
-
-                <span>сек</span>
-
-
-                <input
-                    type="number"
-                    id="cs2"
-                    value="0"
-                    min="0"
-                    max="999"
-                    step="1"
-                >
-
-                <span>мс</span>
 
             </div>
 
 
-            <button
-                class="btn-load"
-                onclick="loadEmbedVideo(2)"
-            >
-                Открыть Видео 2
-            </button>
+            <!-- Настройки -->
+            <div class="video-settings-row">
+
+                <!-- Начальное время -->
+                <div class="time-input-block">
+
+                    <span>Начать с:</span>
+
+                    <input
+                        type="number"
+                        id="hour2"
+                        value="0"
+                        min="0"
+                        max="999"
+                    >
+
+                    <span>ч</span>
+
+                    <input
+                        type="number"
+                        id="min2"
+                        value="0"
+                        min="0"
+                        max="59"
+                    >
+
+                    <span>мин</span>
+
+                    <input
+                        type="number"
+                        id="sec2"
+                        value="0"
+                        min="0"
+                        max="59"
+                    >
+
+                    <span>сек</span>
+
+                    <input
+                        type="number"
+                        id="cs2"
+                        value="0"
+                        min="0"
+                        max="999"
+                        step="1"
+                    >
+
+                    <span>мс</span>
+
+                    <button
+                        class="btn-reset-start-time"
+                        onclick="resetStartTime(2)"
+                        title="Сбросить начальное время"
+                    >
+                        ↺
+                    </button>
+
+                </div>
+
+
+                <!-- FPS -->
+                <div class="fps-input-block">
+
+                    <span>Кадры:</span>
+
+                    <input
+                        type="number"
+                        id="fps2"
+                        value="60"
+                        min="1"
+                        max="1000"
+                        step="0.01"
+                    >
+
+                    <span>FPS</span>
+
+                    <span
+                        id="fps-status-2"
+                        class="fps-status"
+                    >
+                        ручной
+                    </span>
+
+                    <button
+                        class="btn-fps-refresh"
+                        onclick="refreshFPS(2)"
+                        title="Обновить FPS"
+                    >
+                        ↻
+                    </button>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -178,159 +315,70 @@
          ОСНОВНЫЕ КНОПКИ
          ===================================================== -->
 
- <div class="controls main-controls">
-
-    <button
-        class="btn-control btn-play"
-        onclick="syncPlay()"
-        title="Синхронный старт"
-    >
-        ▶
-    </button>
-
-    <button
-        class="btn-control btn-pause"
-        onclick="syncPause()"
-        title="Пауза"
-    >
-        ❚❚
-    </button>
-
-    <button
-        class="btn-control btn-stop"
-        onclick="syncStop()"
-        title="В начало"
-    >
-        ◼
-    </button>
-
-    <button
-        class="btn-control btn-toggle-timers"
-        onclick="toggleTimersVisibility()"
-        title="Таймеры"
-    >
-        👁
-    </button>
-
-
-    <div class="layout-selector">
+    <div class="controls main-controls">
 
         <button
-            class="btn-layout active"
-            onclick="changeLayout('side')"
-            title="Рядом (50/50)"
+            class="btn-control btn-play"
+            onclick="syncPlay()"
+            title="Синхронный старт"
         >
-            ❖
+            ▶
         </button>
 
         <button
-            class="btn-layout"
-            onclick="changeLayout('large')"
-            title="Крупно"
+            class="btn-control btn-pause"
+            onclick="syncPause()"
+            title="Пауза"
         >
-            🔎
+            ❚❚
         </button>
 
         <button
-            class="btn-layout"
-            onclick="changeLayout('vertical')"
-            title="Друг под другом"
+            class="btn-control btn-stop"
+            onclick="syncStop()"
+            title="В начало"
         >
-            ☰
+            ◼
         </button>
+
+        <button
+            class="btn-control btn-toggle-timers"
+            onclick="toggleTimersVisibility()"
+            title="Таймеры"
+        >
+            👁
+        </button>
+
+
+        <div class="layout-selector">
+
+            <button
+                class="btn-layout active"
+                onclick="changeLayout('side')"
+                title="Рядом (50/50)"
+            >
+                ❖
+            </button>
+
+            <button
+                class="btn-layout"
+                onclick="changeLayout('large')"
+                title="Крупно"
+            >
+                🔎
+            </button>
+
+            <button
+                class="btn-layout"
+                onclick="changeLayout('vertical')"
+                title="Друг под другом"
+            >
+                ☰
+            </button>
+
+        </div>
 
     </div>
-
-</div>
-
-    <!-- =====================================================
-         ПЕРЕМОТКА
-         ===================================================== -->
-
-   <div class="seek-controls">
-
-    <!-- Перемотка назад -->
-    <div class="seek-row rew-controls">
-
-        <button
-            class="btn-rew"
-            onclick="syncRewind(0.01)"
-        >
-            0.01s
-        </button>
-
-        <button
-            class="btn-rew"
-            onclick="syncRewind(0.1)"
-        >
-            0.1s
-        </button>
-
-        <button
-            class="btn-rew"
-            onclick="syncRewind(1)"
-        >
-            1s
-        </button>
-
-        <button
-            class="btn-rew"
-            onclick="syncRewind(5)"
-        >
-            5s
-        </button>
-
-        <button
-            class="btn-rew"
-            onclick="syncRewind(10)"
-        >
-            10s
-        </button>
-
-    </div>
-
-
-    <!-- Перемотка вперёд -->
-    <div class="seek-row fwd-controls">
-
-        <button
-            class="btn-fwd"
-            onclick="syncForward(0.01)"
-        >
-            0.01s
-        </button>
-
-        <button
-            class="btn-fwd"
-            onclick="syncForward(0.1)"
-        >
-            0.1s
-        </button>
-
-        <button
-            class="btn-fwd"
-            onclick="syncForward(1)"
-        >
-            1s
-        </button>
-
-        <button
-            class="btn-fwd"
-            onclick="syncForward(5)"
-        >
-            5s
-        </button>
-
-        <button
-            class="btn-fwd"
-            onclick="syncForward(10)"
-        >
-            10s
-        </button>
-
-    </div>
-
-</div>
 
 
 
@@ -344,46 +392,293 @@
     >
 
 
+        <!-- ================= VIDEO 1 ================= -->
+
         <div class="player-column">
 
+            <!-- Панель перемотки -->
+            <div class="video-seek-controls">
 
-            <div
-                id="timer-display-1"
-                class="high-res-timer"
-            >
-                00:00.000
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo1Frames(1)"
+                        title="Назад на 1 кадр"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">1F</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo1Frames(1)"
+                        title="Вперёд на 1 кадр"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo1Frames(5)"
+                        title="Назад на 5 кадров"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">5F</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo1Frames(5)"
+                        title="Вперёд на 5 кадров"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo1Seconds(1)"
+                        title="Назад на 1 секунду"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">1s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo1Seconds(1)"
+                        title="Вперёд на 1 секунду"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo1Seconds(5)"
+                        title="Назад на 5 секунд"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">5s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo1Seconds(5)"
+                        title="Вперёд на 5 секунд"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo1Seconds(10)"
+                        title="Назад на 10 секунд"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">10s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo1Seconds(10)"
+                        title="Вперёд на 10 секунд"
+                    >
+                        +
+                    </button>
+
+                </div>
+
             </div>
 
 
-            <div
-                id="player1"
-                class="player-box"
-            ></div>
+            <!-- Плеер + таймер -->
+            <div class="player-wrapper">
 
+                <div
+                    id="timer-display-1"
+                    class="high-res-timer"
+                >
+                    00:00.000
+                </div>
+
+                <div
+                    id="player1"
+                    class="player-box"
+                ></div>
+
+            </div>
 
         </div>
 
 
 
+        <!-- ================= VIDEO 2 ================= -->
+
         <div class="player-column">
 
+            <!-- Панель перемотки -->
+            <div class="video-seek-controls">
 
-            <div
-                id="timer-display-2"
-                class="high-res-timer"
-            >
-                00:00.000
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo2Frames(1)"
+                        title="Назад на 1 кадр"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">1F</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo2Frames(1)"
+                        title="Вперёд на 1 кадр"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo2Frames(5)"
+                        title="Назад на 5 кадров"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">5F</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo2Frames(5)"
+                        title="Вперёд на 5 кадров"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo2Seconds(1)"
+                        title="Назад на 1 секунду"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">1s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo2Seconds(1)"
+                        title="Вперёд на 1 секунду"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo2Seconds(5)"
+                        title="Назад на 5 секунд"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">5s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo2Seconds(5)"
+                        title="Вперёд на 5 секунд"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+
+                <div class="seek-group">
+
+                    <button
+                        class="btn-rew"
+                        onclick="rewindVideo2Seconds(10)"
+                        title="Назад на 10 секунд"
+                    >
+                        −
+                    </button>
+
+                    <span class="seek-value">10s</span>
+
+                    <button
+                        class="btn-fwd"
+                        onclick="forwardVideo2Seconds(10)"
+                        title="Вперёд на 10 секунд"
+                    >
+                        +
+                    </button>
+
+                </div>
+
             </div>
 
 
-            <div
-                id="player2"
-                class="player-box"
-            ></div>
+            <!-- Плеер + таймер -->
+            <div class="player-wrapper">
 
+                <div
+                    id="timer-display-2"
+                    class="high-res-timer"
+                >
+                    00:00.000
+                </div>
+
+                <div
+                    id="player2"
+                    class="player-box"
+                ></div>
+
+            </div>
 
         </div>
-
 
     </div>
 
@@ -397,41 +692,23 @@
 
         function changeLayout(mode) {
 
-
             const grid =
-                document.getElementById(
-                    'video-grid'
-                );
-
+                document.getElementById('video-grid');
 
             grid.className =
                 "video-container";
 
 
             if (mode === 'side') {
-
-                grid.classList.add(
-                    'layout-side'
-                );
-
+                grid.classList.add('layout-side');
             }
-
 
             if (mode === 'large') {
-
-                grid.classList.add(
-                    'layout-large'
-                );
-
+                grid.classList.add('layout-large');
             }
 
-
             if (mode === 'vertical') {
-
-                grid.classList.add(
-                    'layout-vertical'
-                );
-
+                grid.classList.add('layout-vertical');
             }
 
 
@@ -439,27 +716,19 @@
                 .querySelectorAll('.btn-layout')
                 .forEach(function(button) {
 
-                    button.classList.remove(
-                        'active'
-                    );
+                    button.classList.remove('active');
 
                 });
 
 
             const buttons =
-                document.querySelectorAll(
-                    '.btn-layout'
-                );
+                document.querySelectorAll('.btn-layout');
 
 
             const modeIndex = {
-
                 side: 0,
-
                 large: 1,
-
                 vertical: 2
-
             }[mode];
 
 
@@ -480,7 +749,9 @@
          TWITCH PLAYER API
          ===================================================== -->
 
-    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+    <script
+        src="https://player.twitch.tv/js/embed/v1.js"
+    ></script>
 
 
 

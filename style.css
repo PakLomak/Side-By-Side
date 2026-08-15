@@ -1,69 +1,377 @@
-body { 
-    font-family: sans-serif; 
-    background: #121212; 
-    color: #fff; 
-    text-align: center; 
-    margin: 0; 
-    padding: 15px;
+/* ==========================================================
+   ОСНОВА
+   ========================================================== */
+
+* {
     box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background: #121212;
+    color: #fff;
+    text-align: center;
+
+    margin: 0;
+    padding: 15px;
+
+    overflow-x: auto;
 }
 
 
 /* ==========================================================
-   ПОЛЯ ВВОДА
+   ВЕРХНЯЯ ПАНЕЛЬ ВИДЕО
    ========================================================== */
 
-.inputs-container { 
-    display: flex; 
-    justify-content: center; 
-    gap: 15px; 
-    margin-bottom: 15px; 
-    flex-wrap: nowrap; 
+.inputs-container {
+    display: flex;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto 15px;
+
+    flex-wrap: nowrap;
 }
 
-.input-group { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 6px; 
-    align-items: center; 
-    background: #1e1e1e; 
-    padding: 12px; 
-    border-radius: 8px; 
-    border: 1px solid #333; 
-    width: 45%; 
-    box-sizing: border-box;
+
+/* ==========================================================
+   БЛОК VIDEO 1 / VIDEO 2
+   ========================================================== */
+
+.input-group {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    width: 50%;
+    min-width: 0;
+
+    padding: 9px;
+
+    background: #1e1e1e;
+
+    border: 1px solid #333;
+    border-radius: 7px;
 }
 
-textarea { 
-    width: 100%; 
-    height: 45px; 
-    padding: 8px; 
-    font-size: 12px; 
-    border: 1px solid #444; 
-    background: #222; 
-    color: #fff; 
-    border-radius: 4px; 
-    resize: none; 
-    box-sizing: border-box;
+
+/* ==========================================================
+   ССЫЛКА + ОТКРЫТЬ + ЛОКАЛЬНОЕ ВИДЕО
+   ========================================================== */
+
+.video-source-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    width: 100%;
 }
 
-.time-input-block { 
-    display: flex; 
-    gap: 6px; 
-    align-items: center; 
-    font-size: 13px; 
-    color: #aaa; 
+
+/* Ссылка */
+
+.video-source-row textarea {
+    flex: 1;
+
+    width: auto;
+    min-width: 0;
+
+    height: 34px;
+
+    padding: 7px 8px;
+
+    background: #222;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    color: #fff;
+
+    font-family: sans-serif;
+    font-size: 12px;
+
+    resize: none;
+
+    outline: none;
 }
 
-.time-input-block input { 
-    width: 60px; 
-    padding: 5px; 
-    text-align: center; 
-    background: #222; 
-    border: 1px solid #444; 
-    color: #fff; 
-    border-radius: 4px; 
-    font-size: 13px; 
+.video-source-row textarea:focus {
+    border-color: #666;
+}
+
+
+/* ==========================================================
+   КНОПКА "ОТКРЫТЬ"
+   ========================================================== */
+
+.btn-open-video {
+    flex-shrink: 0;
+
+    width: 72px;
+    height: 34px;
+
+    padding: 0;
+
+    background: #4caf50;
+
+    color: #fff;
+
+    border: none;
+    border-radius: 4px;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        transform 0.1s;
+}
+
+.btn-open-video:hover {
+    background: #45a049;
+}
+
+.btn-open-video:active {
+    transform: scale(0.98);
+}
+
+
+/* ==========================================================
+   КНОПКА ЛОКАЛЬНОГО ВИДЕО
+   ========================================================== */
+
+.btn-local-video {
+    flex-shrink: 0;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    background: #303030;
+
+    color: #aaa;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        color 0.15s;
+}
+
+.btn-local-video:hover {
+    background: #3a3a3a;
+    color: #fff;
+}
+
+
+/* ==========================================================
+   НАСТРОЙКИ ВИДЕО
+   ========================================================== */
+
+.video-settings-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    width: 100%;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   НАЧАТЬ С
+   ========================================================== */
+
+.time-input-block {
+    display: flex;
+
+    align-items: center;
+
+    gap: 3px;
+
+    min-width: 0;
+
+    color: #aaa;
+
+    font-size: 12px;
+}
+
+
+/* Поля времени */
+
+.time-input-block input {
+    width: 60px;
+    height: 28px;
+
+    padding: 2px 4px;
+
+    text-align: center;
+
+    background: #222;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    color: #fff;
+
+    font-size: 12px;
+}
+
+
+/* ==========================================================
+   СБРОС НАЧАЛЬНОГО ВРЕМЕНИ
+   ========================================================== */
+
+.btn-reset-start-time {
+    flex-shrink: 0;
+
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+    margin-left: 2px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #303030;
+
+    color: #aaa;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    font-size: 15px;
+    font-weight: normal;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        color 0.15s,
+        transform 0.1s;
+}
+
+.btn-reset-start-time:hover {
+    background: #3a3a3a;
+    color: #fff;
+}
+
+
+/* ==========================================================
+   FPS
+   ========================================================== */
+
+.fps-input-block {
+    display: flex;
+
+    align-items: center;
+
+    gap: 3px;
+
+    min-width: 0;
+
+    color: #aaa;
+
+    font-size: 12px;
+}
+
+
+/* FPS поле */
+
+.fps-input-block input {
+    width: 52px;
+    height: 26px;
+
+    padding: 2px;
+
+    text-align: center;
+
+    background: #222;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    color: #fff;
+
+    font-size: 12px;
+}
+
+
+/* Ручной */
+
+.fps-status {
+    margin-left: 2px;
+
+    color: #aaa;
+
+    opacity: 0.55;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   ОБНОВИТЬ FPS
+   ========================================================== */
+
+.btn-fps-refresh {
+    flex-shrink: 0;
+
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+    margin-left: 2px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #303030;
+
+    color: #aaa;
+
+    border: 1px solid #444;
+    border-radius: 4px;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        color 0.15s;
+}
+
+.btn-fps-refresh:hover {
+    background: #3a3a3a;
+    color: #fff;
 }
 
 
@@ -71,33 +379,16 @@ textarea {
    ОБЩИЕ КНОПКИ
    ========================================================== */
 
-button { 
-    font-size: 14px; 
-    padding: 8px 16px; 
-    cursor: pointer; 
-    border: none; 
-    border-radius: 4px; 
-    font-weight: bold; 
-    transition: background 0.2s, transform 0.1s; 
+button {
+    font-family: sans-serif;
+
+    cursor: pointer;
+
+    font-weight: bold;
 }
 
-button:active { 
-    transform: scale(0.98); 
-}
-
-
-/* ==========================================================
-   КНОПКА ЗАГРУЗКИ
-   ========================================================== */
-
-.btn-load { 
-    background: #4caf50; 
-    color: white; 
-    width: 100%; 
-}
-
-.btn-load:hover { 
-    background: #45a049; 
+button:active {
+    transform: scale(0.98);
 }
 
 
@@ -105,97 +396,123 @@ button:active {
    ОСНОВНЫЕ КНОПКИ УПРАВЛЕНИЯ
    ========================================================== */
 
-.controls { 
-    margin-bottom: 12px; 
-    display: flex; 
-    justify-content: center; 
-    gap: 10px; 
+.controls {
+    margin-bottom: 12px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
 }
 
 .main-controls {
     align-items: center;
 }
 
+
 .btn-control {
     width: 48px;
     height: 42px;
+
     padding: 0;
-    font-size: 20px;
-    color: white;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
+    color: #fff;
+
+    border: none;
+    border-radius: 4px;
+
+    font-size: 20px;
 }
 
 
 /* Запуск */
 
-.btn-play { 
-    background: #2e7d32; 
+.btn-play {
+    background: #2e7d32;
 }
 
-.btn-play:hover { 
-    background: #1b5e20; 
+.btn-play:hover {
+    background: #1b5e20;
 }
 
 
 /* Пауза */
 
-.btn-pause { 
-    background: #f57c00; 
+.btn-pause {
+    background: #f57c00;
 }
 
-.btn-pause:hover { 
-    background: #e65100; 
+.btn-pause:hover {
+    background: #e65100;
 }
 
 
-/* В начало */
+/* Стоп */
 
-.btn-stop { 
-    background: #c62828; 
+.btn-stop {
+    background: #c62828;
 }
 
-.btn-stop:hover { 
-    background: #b71c1c; 
+.btn-stop:hover {
+    background: #b71c1c;
 }
 
 
 /* Таймеры */
 
-.btn-toggle-timers { 
-    background: #00796b; 
+.btn-toggle-timers {
+    background: #00796b;
 }
 
-.btn-toggle-timers:hover { 
-    background: #004d40; 
+.btn-toggle-timers:hover {
+    background: #004d40;
 }
 
 
 /* ==========================================================
-   ПЕРЕКЛЮЧАТЕЛЬ ВИДА ЭКРАНА
+   ПЕРЕКЛЮЧАТЕЛЬ РАСКЛАДКИ
    ========================================================== */
 
 .layout-selector {
-    background: #1a1a1a;
-    padding: 4px;
-    border-radius: 6px;
-    border: 1px solid #2d2d2d;
     display: inline-flex;
+
     gap: 3px;
-    margin-bottom: 0;
+
+    padding: 4px;
+
+    background: #1a1a1a;
+
+    border: 1px solid #2d2d2d;
+    border-radius: 6px;
 }
+
 
 .btn-layout {
     width: 38px;
     height: 32px;
+
     padding: 0;
-    background: #333;
-    color: #ccc;
-    font-size: 16px;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
+    background: #333;
+
+    color: #ccc;
+
+    border: none;
+    border-radius: 4px;
+
+    font-size: 16px;
 }
 
 .btn-layout:hover {
@@ -210,93 +527,244 @@ button:active {
 
 
 /* ==========================================================
-   ПАНЕЛЬ ПЕРЕМОТКИ
+   КОНТЕЙНЕР ВИДЕО
    ========================================================== */
 
-.seek-controls {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px;
-    margin-bottom: 20px;
-    background: #1a1a1a;
-    border: 1px solid #2d2d2d;
-    border-radius: 6px;
-}
-
-.seek-row {
+.video-container {
     display: flex;
-    justify-content: center;
-    gap: 6px;
-}
 
-.btn-rew,
-.btn-fwd {
-    width: 70px;
-    height: 32px;
-    box-sizing: border-box;
-    color: #fff;
-    font-size: 13px;
-    padding: 0;
-    border: 1px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    gap: 25px;
 
+    width: 100%;
 
-/* Перемотка назад — красная */
+    margin: 0 auto;
 
-.btn-rew {
-    background: #7f1d1d;
-    border-color: #991b1b;
-}
-
-.btn-rew:hover {
-    background: #991b1b;
-    border-color: #b91c1c;
-}
-
-
-/* Перемотка вперёд — зелёная */
-
-.btn-fwd {
-    background: #166534;
-    border-color: #15803d;
-}
-
-.btn-fwd:hover {
-    background: #15803d;
-    border-color: #16a34a;
-}
-
-
-/* Разделение между перемоткой назад и вперёд */
-
-.rew-controls {
-    padding-bottom: 6px;
-    border-bottom: 1px solid #333;
-}
-
-.fwd-controls {
-    padding-top: 0;
+    transition: all 0.3s ease;
 }
 
 
 /* ==========================================================
-   ТАЙМЕР
+   РЕЖИМ — РЯДОМ
    ========================================================== */
 
-.high-res-timer { 
-    font-family: monospace; 
-    font-size: 20px; 
-    background: #263238; 
-    color: #00e676; 
-    padding: 6px 0; 
-    margin-bottom: 6px; 
-    border-radius: 4px; 
-    border: 1px solid #37474f; 
-    letter-spacing: 1px; 
+.layout-side {
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    max-width: 1400px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.layout-side .player-column {
+    width: calc((100% - 25px) / 2);
+
+    min-width: 400px;
+
+    flex: 1 1 0;
+}
+
+
+/* ==========================================================
+   РЕЖИМ — КРУПНО
+   ========================================================== */
+
+.layout-large {
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    max-width: 1920px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.layout-large .player-column {
+    width: calc((100% - 25px) / 2);
+
+    min-width: 400px;
+
+    flex: 1 1 0;
+}
+
+
+/* ==========================================================
+   РЕЖИМ — ВЕРТИКАЛЬНО
+   ========================================================== */
+
+.layout-vertical {
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 100%;
+}
+
+.layout-vertical .player-column {
+    width: 70%;
+
+    min-width: 400px;
+    max-width: 900px;
+
+    margin-bottom: 20px;
+}
+
+
+/* ==========================================================
+   ПАНЕЛЬ ПЕРЕМОТКИ
+   ========================================================== */
+
+.video-seek-controls {
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    width: 100%;
+
+    margin-bottom: 8px;
+}
+
+
+/* ==========================================================
+   ГРУППА − ЗНАЧЕНИЕ +
+   ========================================================== */
+
+.seek-group {
+    display: flex;
+
+    align-items: center;
+
+    height: 26px;
+
+    background: #1a1a1a;
+
+    border: 1px solid #2b2b2b;
+    border-radius: 4px;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.15s,
+        background 0.15s;
+}
+
+.seek-group:hover {
+    border-color: #3a3a3a;
+    background: #1c1c1c;
+}
+
+
+/* ==========================================================
+   ЗНАЧЕНИЕ
+   ========================================================== */
+
+.seek-value {
+    min-width: 29px;
+    height: 26px;
+
+    padding: 0 5px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #777;
+
+    font-size: 11px;
+    font-weight: normal;
+
+    user-select: none;
+
+    border-left: 1px solid #2b2b2b;
+    border-right: 1px solid #2b2b2b;
+}
+
+
+/* ==========================================================
+   КНОПКИ − И +
+   ========================================================== */
+
+.btn-rew,
+.btn-fwd {
+    width: 22px;
+    height: 26px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.12s,
+        color 0.12s,
+        transform 0.08s;
+}
+
+
+/* ==========================================================
+   МИНУС
+   ========================================================== */
+
+.btn-rew {
+    background: #321818;
+
+    color: #999;
+}
+
+.btn-rew:hover {
+    background: #4a1c1c;
+
+    color: #fff;
+}
+
+
+/* ==========================================================
+   ПЛЮС
+   ========================================================== */
+
+.btn-fwd {
+    background: #18321e;
+
+    color: #999;
+}
+
+.btn-fwd:hover {
+    background: #1d4827;
+
+    color: #fff;
+}
+
+
+/* ==========================================================
+   НАЖАТИЕ
+   ========================================================== */
+
+.btn-rew:active,
+.btn-fwd:active {
+    transform: scale(0.92);
 }
 
 
@@ -304,184 +772,161 @@ button:active {
    ВИДЕОПЛЕЕР
    ========================================================== */
 
-.player-box { 
+.player-box {
+    position: relative;
+
     width: 100%;
 
     min-width: 400px;
-    width: max(400px, 100%);
-
     min-height: 300px;
-    height: auto;
 
     aspect-ratio: 16 / 9;
 
-    background: #000; 
-    border-radius: 6px; 
-    overflow: visible;
+    background: #000;
+
+    border-radius: 6px;
+
+    overflow: hidden;
 
     visibility: visible !important;
     opacity: 1 !important;
+
     display: block !important;
 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.5);
 }
-iframe { 
+
+
+/* ==========================================================
+   IFRAME
+   ========================================================== */
+
+iframe {
     width: 100% !important;
     height: 100% !important;
+
     min-width: 400px !important;
     min-height: 300px !important;
+
     border: none;
+
+    display: block !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 
 /* ==========================================================
-   КОНТЕЙНЕР ВИДЕО
+   TWITCH
    ========================================================== */
 
-.video-container {
-    display: flex;
-    gap: 25px;
-    margin: 0 auto;
-    transition: all 0.3s ease;
-}
+.player-box > div[id^="twitch-player-"] {
+    width: 100% !important;
+    height: 100% !important;
 
-/* ==========================================================
-   РЕЖИМ 1 — РЯДОМ
-   ========================================================== */
+    min-width: 400px !important;
+    min-height: 300px !important;
 
-.layout-side {
-    justify-content: center;
-    width: 100%;
-    min-width: 815px;
-    max-width: 1400px;
-    flex-direction: row;
-}
+    display: block !important;
 
-.layout-side .player-column {
-    width: calc((100% - 15px) / 2);
-    min-width: 400px;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 
 /* ==========================================================
-   РЕЖИМ 2 — КРУПНО
+   ОБЁРТКА ПЛЕЕРА
    ========================================================== */
 
-.layout-large {
-    justify-content: center;
-    width: 100%;
-    min-width: 815px;
-    max-width: 1920px;
-    flex-direction: row;
-}
-
-.layout-large .player-column {
-    width: calc((100% - 15px) / 2);
-    min-width: 400px;
-}
-
-
-/* ==========================================================
-   РЕЖИМ 3 — ВЕРТИКАЛЬНО
-   ========================================================== */
-
-.layout-vertical {
-    flex-direction: column;
-    align-items: center;
+.player-wrapper {
     width: 100%;
 }
 
-.layout-vertical .player-column {
-    width: 70%;
-    min-width: 400px;
-    max-width: 900px;
-    margin-bottom: 20px;
-}
+
 /* ==========================================================
-   ЛОКАЛЬНОЕ ВИДЕО — МИНИМАЛИСТИЧНАЯ КНОПКА
+   ТАЙМЕР
    ========================================================== */
 
-.local-video-button {
-    width: auto !important;
-    min-width: 0 !important;
+.high-res-timer {
+    display: table;
 
-    height: 24px !important;
+    padding: 4px 7px;
 
-    padding: 2px 7px !important;
+    margin-bottom: 4px;
 
-    margin: 0;
+    background: rgba(0, 0, 0, 0.65);
 
-    background: #252525;
-    color: #888;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 
-    border: 1px solid #333;
     border-radius: 3px;
 
-    font-size: 11px !important;
+    color: #00e676;
+
+    font-family: monospace;
+
+    font-size: 15px;
     font-weight: normal;
 
-    line-height: 18px;
+    letter-spacing: 0.5px;
 
-    cursor: pointer;
+    line-height: 1;
 
-    transition:
-        background 0.15s,
-        color 0.15s,
-        border-color 0.15s;
+    pointer-events: none;
+
+    box-sizing: border-box;
+
+    backdrop-filter: blur(2px);
 }
 
-.local-video-button:hover {
-    background: #303030;
-    color: #ccc;
-    border-color: #444;
-}
 
-.local-video-button:active {
-    transform: none;
-}
 /* ==========================================================
-   TWITCH EMBED — ТРЕБОВАНИЯ TWITCH
+   ПОЛОЖЕНИЕ ТАЙМЕРОВ
    ========================================================== */
 
-.player-box {
-    min-width: 400px;
-    min-height: 300px;
+/* Видео 1 — справа */
 
-    width: 100%;
-    height: auto;
-
-    visibility: visible !important;
-    opacity: 1 !important;
-
-    display: block !important;
+#timer-display-1 {
+    margin-left: auto;
 }
 
-/* Контейнер, который создаёт Twitch Player */
 
-.player-box > div {
-    width: 100% !important;
-    height: 100% !important;
+/* Видео 2 — слева */
 
-    min-width: 400px !important;
-    min-height: 300px !important;
-
-    visibility: visible !important;
-    opacity: 1 !important;
-
-    display: block !important;
+#timer-display-2 {
+    margin-right: auto;
 }
 
-/* Сам Twitch iframe */
 
-.player-box iframe {
-    width: 100% !important;
-    height: 100% !important;
+/* ==========================================================
+   АДАПТАЦИЯ ДЛЯ УЗКИХ ЭКРАНОВ
+   ========================================================== */
 
-    min-width: 400px !important;
-    min-height: 300px !important;
+@media (max-width: 900px) {
 
-    visibility: visible !important;
-    opacity: 1 !important;
+    .inputs-container {
+        flex-direction: column;
 
-    display: block !important;
+        align-items: center;
+    }
+
+    .input-group {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .layout-side,
+    .layout-large {
+        flex-direction: column;
+
+        align-items: center;
+    }
+
+    .layout-side .player-column,
+    .layout-large .player-column {
+        width: 100%;
+        max-width: 900px;
+    }
+
 }
