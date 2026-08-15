@@ -15,13 +15,20 @@
 //     YouTube iframe
 //
 // video:
-//     HTML5 <video> для локального файла
+//     HTML5 <video>
 //
-// Основные кадровые значения:
-//     frame        — текущий номер кадра
-//     mediaTime    — фактическое время медиаплеера
-//     frameTime    — время, соответствующее текущему кадру
-//     frameDuration — длительность одного кадра
+// Кадровая модель:
+//
+//     frame          — номер текущего кадра
+//     fps            — кадров в секунду
+//     frameDuration  — длительность одного кадра
+//     frameTime      — точное время текущего кадра
+//     mediaTime      — фактическое время медиаплеера
+//
+// Основной принцип:
+//
+//     frame -> frame / FPS -> время
+//
 // ============================================================
 
 const players = {
@@ -34,13 +41,16 @@ const players = {
 
         fps: 60,
         frameDuration: 1 / 60,
+
         frame: 0,
         mediaTime: 0,
         frameTime: 0,
 
         twitchReady: false,
         pendingPlay: false,
-        isPlaying: false
+        isPlaying: false,
+
+        duration: 0
     },
 
     2: {
@@ -51,13 +61,16 @@ const players = {
 
         fps: 60,
         frameDuration: 1 / 60,
+
         frame: 0,
         mediaTime: 0,
         frameTime: 0,
 
         twitchReady: false,
         pendingPlay: false,
-        isPlaying: false
+        isPlaying: false,
+
+        duration: 0
     }
 
 };
@@ -72,14 +85,26 @@ let videoTime2 = 0;
 let timersVisible = true;
 
 // ============================================================
+// РЕЗУЛЬТАТЫ ЗАЕЗДА
+// ============================================================
+
+let finishTime1 = null;
+let finishTime2 = null;
+
+let resultTime1 = null;
+let resultTime2 = null;
+
+// ============================================================
 // ФОРМАТ ВРЕМЕНИ
 // ============================================================
 
 function formatHighResTime(totalSeconds) {
 
-    if (totalSeconds < 0) {
+    if (!Number.isFinite(totalSeconds)) {
         totalSeconds = 0;
     }
+
+    totalSeconds = Math.max(0, totalSeconds);
 
     const mins =
         Math.floor(totalSeconds / 60);
@@ -88,7 +113,9 @@ function formatHighResTime(totalSeconds) {
         Math.floor(totalSeconds % 60);
 
     const ms =
-        Math.floor((totalSeconds % 1) * 1000);
+        Math.floor(
+            (totalSeconds % 1) * 1000
+        );
 
     const strMins =
         mins.toString().padStart(2, '0');
@@ -100,6 +127,204 @@ function formatHighResTime(totalSeconds) {
         ms.toString().padStart(3, '0');
 
     return `${strMins}:${strSecs}.${strMs}`;
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ ТЕКУЩЕГО ВРЕМЕНИ
+// ============================================================
+
+function getVideoTime(playerNum) {
+
+    return playerNum === 1
+        ? videoTime1
+        : videoTime2;
+
+}
+
+// ============================================================
+// УСТАНОВКА ТЕКУЩЕГО ВРЕМЕНИ
+// ============================================================
+
+function setVideoTime(
+    playerNum,
+    time
+) {
+
+    if (!Number.isFinite(time)) {
+        time = 0;
+    }
+
+    time = Math.max(0, time);
+
+    if (playerNum === 1) {
+        videoTime1 = time;
+    }
+
+    else {
+        videoTime2 = time;
+    }
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ FPS
+// ============================================================
+
+function getFPS(playerNum) {
+
+    const info =
+        players[playerNum];
+
+    if (
+        info &&
+        Number.isFinite(info.fps) &&
+        info.fps > 0
+    ) {
+
+        return info.fps;
+
+    }
+
+    const input =
+        document.getElementById(
+            'fps' + playerNum
+        );
+
+    if (!input) {
+        return 60;
+    }
+
+    const fps =
+        parseFloat(input.value);
+
+    if (
+        !Number.isFinite(fps) ||
+        fps <= 0
+    ) {
+
+        return 60;
+
+    }
+
+    return fps;
+
+}
+
+// ============================================================
+// КАДР -> ВРЕМЯ
+// ============================================================
+
+function frameToTime(
+    playerNum,
+    frame
+) {
+
+    const info =
+        players[playerNum];
+
+    if (!info) {
+        return 0;
+    }
+
+    const fps =
+        Number.isFinite(info.fps) &&
+        info.fps > 0
+            ? info.fps
+            : getFPS(playerNum);
+
+    return Math.max(
+        0,
+        Math.round(frame) / fps
+    );
+
+}
+
+// ============================================================
+// ВРЕМЯ -> КАДР
+// ============================================================
+
+function timeToFrame(
+    playerNum,
+    time
+) {
+
+    const fps =
+        getFPS(playerNum);
+
+    if (
+        !Number.isFinite(time) ||
+        time <= 0
+    ) {
+
+        return 0;
+
+    }
+
+    return Math.max(
+        0,
+        Math.round(time * fps)
+    );
+
+}
+
+// ============================================================
+// УСТАНОВКА КАДРА
+// ============================================================
+
+function setPlayerFrame(
+    playerNum,
+    frame,
+    updateTimer = true
+) {
+
+    const info =
+        players[playerNum];
+
+    if (!info) {
+        return;
+    }
+
+    if (!Number.isFinite(frame)) {
+        frame = 0;
+    }
+
+    frame =
+        Math.max(
+            0,
+            Math.round(frame)
+        );
+
+    const fps =
+        Number.isFinite(info.fps) &&
+        info.fps > 0
+            ? info.fps
+            : 60;
+
+    info.fps =
+        fps;
+
+    info.frameDuration =
+        1 / fps;
+
+    info.frame =
+        frame;
+
+    info.frameTime =
+        frame / fps;
+
+    info.mediaTime =
+        info.frameTime;
+
+    setVideoTime(
+        playerNum,
+        info.frameTime
+    );
+
+    if (updateTimer) {
+        updateTimerDisplays();
+    }
+
 }
 
 // ============================================================
@@ -109,26 +334,232 @@ function formatHighResTime(totalSeconds) {
 function updateTimerDisplays() {
 
     const timer1 =
-        document.getElementById('timer-display-1');
+        document.getElementById(
+            'current-time-1'
+        );
 
     const timer2 =
-        document.getElementById('timer-display-2');
+        document.getElementById(
+            'current-time-2'
+        );
 
     if (timer1) {
 
         timer1.innerText =
-            formatHighResTime(videoTime1);
+            formatHighResTime(
+                videoTime1
+            );
 
     }
 
     if (timer2) {
 
         timer2.innerText =
-            formatHighResTime(videoTime2);
+            formatHighResTime(
+                videoTime2
+            );
+
+    }
+
+    updateSeekBars();
+
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ РЕЗУЛЬТАТОВ
+// ============================================================
+
+function updateResultDisplays() {
+
+    const result1 =
+        document.getElementById(
+            'result-display-1'
+        );
+
+    const result2 =
+        document.getElementById(
+            'result-display-2'
+        );
+
+    if (result1) {
+
+        result1.innerText =
+            Number.isFinite(resultTime1)
+                ? formatHighResTime(resultTime1)
+                : '--:--.---';
+
+    }
+
+    if (result2) {
+
+        result2.innerText =
+            Number.isFinite(resultTime2)
+                ? formatHighResTime(resultTime2)
+                : '--:--.---';
 
     }
 
 }
+
+// ============================================================
+// ОБНОВЛЕНИЕ ВИДИМОГО ПОЛЯ "НАЧАЛО"
+// ============================================================
+
+function updateStartTimeDisplay(videoNumber) {
+
+    const element =
+        document.getElementById(
+            'start-time-display-' +
+            videoNumber
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.innerText =
+        formatHighResTime(
+            getStartTime(videoNumber)
+        );
+
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ ВИДИМОГО ПОЛЯ "КОНЕЦ"
+// ============================================================
+
+function updateEndTimeDisplay(
+    videoNumber,
+    time
+) {
+
+    const element =
+        document.getElementById(
+            'end-time-display-' +
+            videoNumber
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.innerText =
+        formatHighResTime(time);
+
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ ВРЕМЕНИ МЕЖДУ НАЧАЛОМ И КОНЦОМ
+// ============================================================
+
+function updateTimeDifferenceDisplay(
+    videoNumber,
+    diff
+) {
+
+    const element =
+        document.getElementById(
+            'time-difference-' +
+            videoNumber
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.innerText =
+        formatHighResTime(diff);
+
+}
+
+// ============================================================
+// ФИКСАЦИЯ КОНЕЧНОЙ ТОЧКИ
+// ============================================================
+
+function setFinishTime(videoNumber) {
+
+    let currentTime =
+        getVideoTime(videoNumber);
+
+    if (!Number.isFinite(currentTime)) {
+        currentTime = 0;
+    }
+
+    const startTime =
+        getStartTime(videoNumber);
+
+    const elapsedTime =
+        Math.max(
+            0,
+            currentTime - startTime
+        );
+
+    if (videoNumber === 1) {
+
+        finishTime1 =
+            currentTime;
+
+        resultTime1 =
+            elapsedTime;
+
+    }
+
+    else {
+
+        finishTime2 =
+            currentTime;
+
+        resultTime2 =
+            elapsedTime;
+
+    }
+
+    updateResultDisplays();
+
+    updateEndTimeDisplay(
+        videoNumber,
+        currentTime
+    );
+
+    updateTimeDifferenceDisplay(
+        videoNumber,
+        elapsedTime
+    );
+
+    console.log(
+        'Видео ' +
+        videoNumber +
+        ': начало =',
+        formatHighResTime(startTime),
+        'кадр =',
+        players[videoNumber]
+            ? players[videoNumber].frame
+            : 0,
+        'конец =',
+        formatHighResTime(currentTime),
+        'результат =',
+        formatHighResTime(elapsedTime)
+    );
+
+}
+
+// ============================================================
+// КНОПКИ ФИНИША
+// ============================================================
+
+window.finishVideo1 =
+    function() {
+
+        setFinishTime(1);
+
+    };
+
+window.finishVideo2 =
+    function() {
+
+        setFinishTime(2);
+
+    };
 
 // ============================================================
 // ОБНОВЛЕНИЕ ТАЙМЕРА ИЗ КАДРА
@@ -143,34 +574,471 @@ function updateTimerFromFrame(playerNum) {
         return;
     }
 
-    const frame =
-        Math.max(
-            0,
-            Math.round(info.frame)
+    setPlayerFrame(
+        playerNum,
+        info.frame
+    );
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ ОБЛАСТИ ШКАЛЫ
+// ============================================================
+
+function getSeekAreaElement(playerNum) {
+
+    const player =
+        document.getElementById(
+            'player' + playerNum
         );
 
-    const frameTime =
-        frame *
-        info.frameDuration;
+    if (!player) {
+        return null;
+    }
 
-    info.frameTime =
-        frameTime;
+    const column =
+        player.closest('.player-column');
 
-    if (playerNum === 1) {
+    if (!column) {
+        return null;
+    }
 
-        videoTime1 =
-            frameTime;
+    return column.querySelector(
+        '.video-seek-area'
+    );
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ САМОЙ ШКАЛЫ
+// ============================================================
+
+function getSeekBarElement(playerNum) {
+
+    const area =
+        getSeekAreaElement(playerNum);
+
+    if (!area) {
+        return null;
+    }
+
+    return area.querySelector(
+        '.seek-bar'
+    );
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ ИНДИКАТОРА ПРОГРЕССА
+// ============================================================
+
+function getSeekProgressElement(playerNum) {
+
+    const area =
+        getSeekAreaElement(playerNum);
+
+    if (!area) {
+        return null;
+    }
+
+    return area.querySelector(
+        '.seek-progress'
+    );
+
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ ДЛИТЕЛЬНОСТИ
+// ============================================================
+
+function getVideoDuration(playerNum) {
+
+    const info =
+        players[playerNum];
+
+    if (!info) {
+        return 0;
+    }
+
+    if (
+        info.type === 'local' &&
+        info.video &&
+        Number.isFinite(info.video.duration)
+    ) {
+
+        return info.video.duration;
 
     }
 
-    else {
+    if (
+        Number.isFinite(info.duration) &&
+        info.duration > 0
+    ) {
 
-        videoTime2 =
-            frameTime;
+        return info.duration;
 
     }
+
+    return 0;
+
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ ПОЛОЖЕНИЯ ШКАЛЫ
+// ============================================================
+
+function updateSeekBar(playerNum) {
+
+    const bar =
+        getSeekBarElement(playerNum);
+
+    const progress =
+        getSeekProgressElement(playerNum);
+
+    if (!bar || !progress) {
+        return;
+    }
+
+    const duration =
+        getVideoDuration(playerNum);
+
+    const currentTime =
+        getVideoTime(playerNum);
+
+    if (
+        duration <= 0 ||
+        !Number.isFinite(currentTime)
+    ) {
+
+        progress.style.width =
+            '0%';
+
+        return;
+
+    }
+
+    const ratio =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                currentTime / duration
+            )
+        );
+
+    progress.style.width =
+        (ratio * 100) + '%';
+
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ ОБЕИХ ШКАЛ
+// ============================================================
+
+function updateSeekBars() {
+
+    updateSeekBar(1);
+    updateSeekBar(2);
+
+}
+
+// ============================================================
+// ПЕРЕМЕЩЕНИЕ ПО ШКАЛЕ
+// ============================================================
+
+function seekPlayerByRatio(
+    playerNum,
+    ratio
+) {
+
+    const info =
+        players[playerNum];
+
+    if (!info) {
+        return;
+    }
+
+    const duration =
+        getVideoDuration(playerNum);
+
+    if (
+        !Number.isFinite(duration) ||
+        duration <= 0
+    ) {
+
+        console.log(
+            'Шкала: неизвестна длительность видео',
+            playerNum
+        );
+
+        return;
+    }
+
+    ratio =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                ratio
+            )
+        );
+
+    const targetTime =
+        ratio * duration;
+
+    const frame =
+        Math.round(
+            targetTime * info.fps
+        );
+
+    const maxFrame =
+        Math.max(
+            0,
+            Math.floor(
+                duration * info.fps
+            )
+        );
+
+    const targetFrame =
+        Math.min(
+            frame,
+            maxFrame
+        );
+
+    console.log(
+        'Шкала:',
+        'player =',
+        playerNum,
+        'ratio =',
+        ratio,
+        'time =',
+        targetTime,
+        'frame =',
+        targetFrame
+    );
+
+    setPlayerFrame(
+        playerNum,
+        targetFrame,
+        false
+    );
+
+    seekVideo(
+        playerNum,
+        targetFrame / info.fps
+    );
 
     updateTimerDisplays();
+}
+
+// ============================================================
+// ПОЛУЧЕНИЕ ПОЗИЦИИ МЫШИ
+// ============================================================
+
+function getSeekRatio(
+    playerNum,
+    event
+) {
+
+    const bar =
+        getSeekBarElement(playerNum);
+
+    if (!bar) {
+
+        console.log(
+            'Шкала не найдена:',
+            playerNum
+        );
+
+        return null;
+    }
+
+    const rect =
+        bar.getBoundingClientRect();
+
+    if (
+        rect.width <= 0
+    ) {
+
+        console.log(
+            'Ширина шкалы равна 0:',
+            playerNum
+        );
+
+        return null;
+    }
+
+    let ratio =
+        (
+            event.clientX -
+            rect.left
+        ) /
+        rect.width;
+
+    ratio =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                ratio
+            )
+        );
+
+    return ratio;
+}
+
+// ============================================================
+// ПЕРЕМЕЩЕНИЕ ПО ШКАЛЕ
+// ============================================================
+
+function seekPlayerByMouse(
+    playerNum,
+    event
+) {
+
+    const ratio =
+        getSeekRatio(
+            playerNum,
+            event
+        );
+
+    if (ratio === null) {
+        return;
+    }
+
+    seekPlayerByRatio(
+        playerNum,
+        ratio
+    );
+}
+
+// ============================================================
+// НАСТРОЙКА МЫШИ ДЛЯ ШКАЛЫ
+// ============================================================
+
+function setupSeekMouse(
+    playerNum
+) {
+
+    const bar =
+        getSeekBarElement(playerNum);
+
+    if (!bar) {
+
+        console.log(
+            'Не удалось подключить мышь к шкале:',
+            playerNum
+        );
+
+        return;
+    }
+
+    if (
+        bar.dataset.seekMouseReady === 'true'
+    ) {
+
+        return;
+    }
+
+    bar.dataset.seekMouseReady =
+        'true';
+
+    let dragging =
+        false;
+
+    // --------------------------------------------------------
+    // НАЖАТИЕ ЛКМ
+    // --------------------------------------------------------
+
+    bar.addEventListener(
+        'mousedown',
+        function(event) {
+
+            if (
+                event.button !== 0
+            ) {
+
+                return;
+            }
+
+            dragging =
+                true;
+
+            seekPlayerByMouse(
+                playerNum,
+                event
+            );
+
+            event.preventDefault();
+            event.stopPropagation();
+
+        }
+    );
+
+    // --------------------------------------------------------
+    // ДВИЖЕНИЕ МЫШИ
+    // --------------------------------------------------------
+
+    document.addEventListener(
+        'mousemove',
+        function(event) {
+
+            if (!dragging) {
+                return;
+            }
+
+            seekPlayerByMouse(
+                playerNum,
+                event
+            );
+
+        }
+    );
+
+    // --------------------------------------------------------
+    // ОТПУСКАНИЕ ЛКМ
+    // --------------------------------------------------------
+
+    document.addEventListener(
+        'mouseup',
+        function(event) {
+
+            if (
+                event.button === 0
+            ) {
+
+                dragging =
+                    false;
+
+            }
+
+        }
+    );
+
+    // --------------------------------------------------------
+    // ЗАЩИТА ОТ ПОТЕРИ MOUSEUP
+    // --------------------------------------------------------
+
+    window.addEventListener(
+        'blur',
+        function() {
+
+            dragging =
+                false;
+
+        }
+    );
+
+}
+
+// ============================================================
+// НАСТРОЙКА МЫШИ ДЛЯ ОБЕИХ ШКАЛ
+// ============================================================
+
+function setupSeekMouseControls() {
+
+    setupSeekMouse(1);
+    setupSeekMouse(2);
 
 }
 
@@ -186,8 +1054,6 @@ function getYouTubeVideoId(input) {
     if (!value) {
         return null;
     }
-
-    // Поддержка прямого ID видео.
 
     if (
         /^[a-zA-Z0-9_-]{11}$/.test(value)
@@ -210,8 +1076,7 @@ function getYouTubeVideoId(input) {
                 hostname === 'www.youtube.com' ||
                 hostname === 'youtube.com' ||
                 hostname === 'm.youtube.com'
-            )
-            &&
+            ) &&
             url.pathname === '/watch'
         ) {
 
@@ -237,8 +1102,7 @@ function getYouTubeVideoId(input) {
                 hostname === 'www.youtube.com' ||
                 hostname === 'youtube.com' ||
                 hostname === 'm.youtube.com'
-            )
-            &&
+            ) &&
             url.pathname.startsWith('/shorts/')
         ) {
 
@@ -262,7 +1126,7 @@ function getYouTubeVideoId(input) {
 }
 
 // ============================================================
-// ОПРЕДЕЛЕНИЕ TWITCH ССЫЛКИ
+// ОПРЕДЕЛЕНИЕ TWITCH
 // ============================================================
 
 function getTwitchInfo(input) {
@@ -306,11 +1170,8 @@ function getTwitchInfo(input) {
         ) {
 
             return {
-
                 type: 'twitch-vod',
-
                 id: parts[1]
-
             };
 
         }
@@ -346,11 +1207,8 @@ function getTwitchInfo(input) {
         }
 
         return {
-
             type: 'twitch-channel',
-
             id: channel
-
         };
 
     }
@@ -364,7 +1222,7 @@ function getTwitchInfo(input) {
 }
 
 // ============================================================
-// ОПРЕДЕЛЕНИЕ ТИПА ССЫЛКИ
+// ОПРЕДЕЛЕНИЕ ИСТОЧНИКА
 // ============================================================
 
 function detectVideoSource(input) {
@@ -375,11 +1233,8 @@ function detectVideoSource(input) {
     if (youtubeId) {
 
         return {
-
             type: 'youtube',
-
             id: youtubeId
-
         };
 
     }
@@ -388,9 +1243,7 @@ function detectVideoSource(input) {
         getTwitchInfo(input);
 
     if (twitchInfo) {
-
         return twitchInfo;
-
     }
 
     return null;
@@ -443,7 +1296,6 @@ function setupTimeInputLimits() {
 
     };
 
-
     Object.entries(limits).forEach(
         function([id, max]) {
 
@@ -453,7 +1305,6 @@ function setupTimeInputLimits() {
             if (!input) {
                 return;
             }
-
 
             input.addEventListener(
                 'input',
@@ -469,8 +1320,9 @@ function setupTimeInputLimits() {
                             10
                         );
 
-
-                    if (!Number.isFinite(value)) {
+                    if (
+                        !Number.isFinite(value)
+                    ) {
 
                         this.value = '';
 
@@ -478,26 +1330,20 @@ function setupTimeInputLimits() {
 
                     }
 
+                    value =
+                        Math.max(
+                            0,
+                            Math.min(
+                                value,
+                                max
+                            )
+                        );
 
-                    if (value < 0) {
-
-                        value = 0;
-
-                    }
-
-
-                    if (value > max) {
-
-                        value = max;
-
-                    }
-
-
-                    this.value = value;
+                    this.value =
+                        value;
 
                 }
             );
-
 
             input.addEventListener(
                 'blur',
@@ -517,15 +1363,15 @@ function setupTimeInputLimits() {
                             10
                         );
 
-
-                    if (!Number.isFinite(value)) {
+                    if (
+                        !Number.isFinite(value)
+                    ) {
 
                         this.value = 0;
 
                         return;
 
                     }
-
 
                     value =
                         Math.max(
@@ -536,8 +1382,8 @@ function setupTimeInputLimits() {
                             )
                         );
 
-
-                    this.value = value;
+                    this.value =
+                        value;
 
                 }
             );
@@ -553,73 +1399,57 @@ function setupTimeInputLimits() {
 
 function getStartTime(playerNum) {
 
+    const hoursInput =
+        document.getElementById(
+            'hour' + playerNum
+        );
+
+    const minutesInput =
+        document.getElementById(
+            'min' + playerNum
+        );
+
+    const secondsInput =
+        document.getElementById(
+            'sec' + playerNum
+        );
+
+    const millisecondsInput =
+        document.getElementById(
+            'cs' + playerNum
+        );
+
     const hours =
-        parseInt(
-            document.getElementById(
-                'hour' + playerNum
-            ).value
-        ) || 0;
+        hoursInput
+            ? parseInt(hoursInput.value, 10) || 0
+            : 0;
 
     const minutes =
-        parseInt(
-            document.getElementById(
-                'min' + playerNum
-            ).value
-        ) || 0;
+        minutesInput
+            ? parseInt(minutesInput.value, 10) || 0
+            : 0;
 
     const seconds =
-        parseInt(
-            document.getElementById(
-                'sec' + playerNum
-            ).value
-        ) || 0;
+        secondsInput
+            ? parseInt(secondsInput.value, 10) || 0
+            : 0;
 
     const milliseconds =
-        parseInt(
-            document.getElementById(
-                'cs' + playerNum
-            ).value
-        ) || 0;
+        millisecondsInput
+            ? parseInt(millisecondsInput.value, 10) || 0
+            : 0;
 
     return (
-        (hours * 3600) +
-        (minutes * 60) +
+        hours * 3600 +
+        minutes * 60 +
         seconds +
-        (milliseconds / 1000)
+        milliseconds / 1000
     );
 
 }
 
 // ============================================================
-// FPS
-// ============================================================
-
-function getFPS(playerNum) {
-
-    const input =
-        document.getElementById(
-            'fps' + playerNum
-        );
-
-    if (!input) {
-        return 60;
-    }
-
-    let fps =
-        parseFloat(input.value);
-
-    if (
-        !Number.isFinite(fps) ||
-        fps <= 0
-    ) {
-        fps = 60;
-    }
-
-    return fps;
-}
-
-// ============================================================
-// УСТАНОВКА FPS ПЛЕЕРА
+// УСТАНОВКА FPS
 // ============================================================
 
 function setPlayerFPS(
@@ -639,13 +1469,38 @@ function setPlayerFPS(
         !Number.isFinite(fps) ||
         fps <= 0
     ) {
+
         return;
+
     }
 
-    info.fps = fps;
+    const oldTime =
+        getVideoTime(playerNum);
+
+    info.fps =
+        fps;
 
     info.frameDuration =
         1 / fps;
+
+    info.frame =
+        Math.max(
+            0,
+            Math.round(
+                oldTime * fps
+            )
+        );
+
+    info.frameTime =
+        info.frame / fps;
+
+    info.mediaTime =
+        info.frameTime;
+
+    setVideoTime(
+        playerNum,
+        info.frameTime
+    );
 
     const input =
         document.getElementById(
@@ -659,7 +1514,8 @@ function setPlayerFPS(
                 ? fps
                 : fps.toFixed(2);
 
-        input.disabled = false;
+        input.disabled =
+            false;
 
     }
 
@@ -677,146 +1533,62 @@ function setPlayerFPS(
 
     }
 
+    updateTimerDisplays();
+
 }
 
 // ============================================================
-// ПРИМЕНИТЬ FPS ИЗ ПОЛЯ
+// ПРИМЕНИТЬ FPS
 // ============================================================
 
-window.refreshFPS = function(playerNum) {
+window.refreshFPS =
+    function(playerNum) {
 
-    const info =
-        players[playerNum];
+        const info =
+            players[playerNum];
 
-    if (!info) {
-        return;
-    }
+        if (!info) {
+            return;
+        }
 
-    const input =
-        document.getElementById(
-            'fps' + playerNum
-        );
+        const input =
+            document.getElementById(
+                'fps' + playerNum
+            );
 
-    if (!input) {
-        return;
-    }
+        if (!input) {
+            return;
+        }
 
-    let fps =
-        parseFloat(input.value);
-
-    if (
-        !Number.isFinite(fps) ||
-        fps <= 0
-    ) {
-
-        alert(
-            'Введите корректное значение FPS.'
-        );
-
-        input.value =
-            info.fps;
-
-        return;
-
-    }
-
-    info.fps =
-        fps;
-
-    info.frameDuration =
-        1 / fps;
-
-    input.disabled =
-        false;
-
-    const status =
-        document.getElementById(
-            'fps-status-' + playerNum
-        );
-
-    if (status) {
-
-        status.textContent =
-            'ручной';
-
-    }
-
-    // После смены FPS текущая позиция переводится
-    // в новый кадровый масштаб.
-
-    let currentTime = 0;
-
-    if (
-        info.type === 'local' &&
-        info.video
-    ) {
+        let fps =
+            parseFloat(input.value);
 
         if (
-            Number.isFinite(
-                info.video.currentTime
-            )
+            !Number.isFinite(fps) ||
+            fps <= 0
         ) {
 
-            currentTime =
-                info.video.currentTime;
+            alert(
+                'Введите корректное значение FPS.'
+            );
+
+            input.value =
+                info.fps;
+
+            return;
 
         }
 
-    }
-
-    else {
-
-        currentTime =
-            playerNum === 1
-                ? videoTime1
-                : videoTime2;
-
-    }
-
-    info.frame =
-        Math.max(
-            0,
-            Math.round(
-                currentTime * fps
-            )
+        setPlayerFPS(
+            playerNum,
+            fps,
+            false
         );
 
-    const frameTime =
-        info.frame *
-        info.frameDuration;
-
-    if (playerNum === 1) {
-
-        videoTime1 =
-            frameTime;
-
-    }
-
-    else {
-
-        videoTime2 =
-            frameTime;
-
-    }
-
-    updateTimerDisplays();
-
-    console.log(
-        'FPS видео ' +
-        playerNum +
-        ' изменён на:',
-        fps
-    );
-
-};
+    };
 
 // ============================================================
-// АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ FPS ЛОКАЛЬНОГО ВИДЕО
-// ============================================================
-//
-// requestVideoFrameCallback позволяет получать информацию
-// о фактически отображаемых кадрах HTML5-видео.
-// FPS определяется по разнице mediaTime между кадрами.
+// АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ FPS
 // ============================================================
 
 function detectLocalVideoFPS(
@@ -830,11 +1602,8 @@ function detectLocalVideoFPS(
             'function'
     ) {
 
-        console.log(
-            'requestVideoFrameCallback недоступен'
-        );
-
         return;
+
     }
 
     const samples = [];
@@ -897,14 +1666,10 @@ function detectLocalVideoFPS(
             ) /
             samples.length;
 
-        if (
-            average > 0
-        ) {
+        if (average > 0) {
 
             const detectedFPS =
                 1 / average;
-
-            // Округляем небольшие ошибки, например 59.94 → 60.
 
             const roundedFPS =
                 Math.abs(
@@ -915,11 +1680,6 @@ function detectLocalVideoFPS(
                     : Number(
                         detectedFPS.toFixed(2)
                     );
-
-            console.log(
-                `Видео ${playerNum}: определён FPS =`,
-                roundedFPS
-            );
 
             setPlayerFPS(
                 playerNum,
@@ -938,10 +1698,13 @@ function detectLocalVideoFPS(
 }
 
 // ============================================================
-// ОСТАНОВКА СТАРОГО ПЛЕЕРА
+// ОСТАНОВКА ПЛЕЕРА
 // ============================================================
 
 function destroyPlayer(playerNum) {
+
+    stopFrameTimer(playerNum);
+    stopYouTubeTimer(playerNum);
 
     const info =
         players[playerNum];
@@ -956,9 +1719,7 @@ function destroyPlayer(playerNum) {
     ) {
 
         try {
-
             info.player.pause();
-
         }
 
         catch (error) {
@@ -996,6 +1757,7 @@ function destroyPlayer(playerNum) {
     }
 
     players[playerNum] = {
+
         type: null,
         player: null,
         iframe: null,
@@ -1003,15 +1765,30 @@ function destroyPlayer(playerNum) {
 
         fps: 60,
         frameDuration: 1 / 60,
-        frame: 0,
 
+        frame: 0,
         mediaTime: 0,
         frameTime: 0,
 
         twitchReady: false,
         pendingPlay: false,
-        isPlaying: false
+        isPlaying: false,
+
+        duration: 0
+
     };
+
+    // После смены плеера повторно подключаем мышь
+    // к новой .seek-bar, если она уже существует.
+    setTimeout(
+        function() {
+
+            setupSeekMouseControls();
+            updateSeekBars();
+
+        },
+        0
+    );
 
 }
 
@@ -1030,15 +1807,19 @@ function createLocalVideoPlayer(
             'player' + playerNum
         );
 
+    if (!container) {
+        return;
+    }
+
     container
         .querySelectorAll(
             'iframe, video, [id^="twitch-player-"]'
         )
-        .forEach(function(element) {
-
-            element.remove();
-
-        });
+        .forEach(
+            function(element) {
+                element.remove();
+            }
+        );
 
     const video =
         document.createElement('video');
@@ -1046,22 +1827,26 @@ function createLocalVideoPlayer(
     video.id =
         'local-video-' + playerNum;
 
-    video.controls = true;
+    video.controls =
+        true;
 
-    video.preload = 'auto';
+    video.preload =
+        'auto';
 
-    video.playsInline = true;
+    video.playsInline =
+        true;
 
-    video.style.width = '100%';
+    video.style.width =
+        '100%';
 
-    video.style.height = '100%';
+    video.style.height =
+        '100%';
 
-    video.style.display = 'block';
+    video.style.display =
+        'block';
 
-    video.style.objectFit = 'contain';
-
-    // Object URL используется для воспроизведения
-    // выбранного пользователем локального файла.
+    video.style.objectFit =
+        'contain';
 
     const objectUrl =
         URL.createObjectURL(file);
@@ -1069,38 +1854,56 @@ function createLocalVideoPlayer(
     video.src =
         objectUrl;
 
-    container.appendChild(video);
+    container.appendChild(
+        video
+    );
 
     players[playerNum] = {
+
         type: 'local',
 
         player: null,
         iframe: null,
         video: video,
 
-        fps: 60,
-        frameDuration: 1 / 60,
-        frame: 0,
+        fps: getFPS(playerNum),
+        frameDuration:
+            1 / getFPS(playerNum),
 
+        frame: 0,
         mediaTime: 0,
         frameTime: 0,
 
         twitchReady: false,
         pendingPlay: false,
+        isPlaying: false,
 
-        isPlaying: false
+        duration: 0
+
     };
 
     video.addEventListener(
         'loadedmetadata',
         function() {
 
+            const info =
+                players[playerNum];
+
+            if (!info) {
+                return;
+            }
+
             let time =
-                startTime;
+                Number.isFinite(startTime)
+                    ? startTime
+                    : 0;
 
             if (
                 Number.isFinite(video.duration)
             ) {
+
+                info.duration =
+                    video.duration;
 
                 time =
                     Math.min(
@@ -1110,10 +1913,19 @@ function createLocalVideoPlayer(
 
             }
 
+            const frame =
+                Math.round(
+                    time * info.fps
+                );
+
+            const frameTime =
+                frame /
+                info.fps;
+
             try {
 
                 video.currentTime =
-                    time;
+                    frameTime;
 
             }
 
@@ -1126,21 +1938,25 @@ function createLocalVideoPlayer(
 
             }
 
-            if (playerNum === 1) {
+            info.mediaTime =
+                frameTime;
 
-                videoTime1 =
-                    time;
+            info.frame =
+                frame;
 
-            }
+            info.frameTime =
+                frameTime;
 
-            else {
-
-                videoTime2 =
-                    time;
-
-            }
+            setVideoTime(
+                playerNum,
+                frameTime
+            );
 
             updateTimerDisplays();
+
+            setupSeekMouseControls();
+
+            updateSeekBars();
 
             detectLocalVideoFPS(
                 playerNum,
@@ -1150,7 +1966,25 @@ function createLocalVideoPlayer(
         }
     );
 
-    // Object URL больше не нужен после полной очистки видео.
+    video.addEventListener(
+        'durationchange',
+        function() {
+
+            if (
+                Number.isFinite(
+                    video.duration
+                )
+            ) {
+
+                players[playerNum].duration =
+                    video.duration;
+
+                updateSeekBars();
+
+            }
+
+        }
+    );
 
     video.addEventListener(
         'emptied',
@@ -1165,9 +1999,7 @@ function createLocalVideoPlayer(
             }
 
             catch (error) {
-
                 // Ничего не делаем.
-
             }
 
         }
@@ -1190,21 +2022,28 @@ function createYouTubePlayer(
             'player' + playerNum
         );
 
+    if (!container) {
+        return;
+    }
+
     container
         .querySelectorAll(
             'iframe, video, [id^="twitch-player-"]'
         )
-        .forEach(function(element) {
-
-            element.remove();
-
-        });
+        .forEach(
+            function(element) {
+                element.remove();
+            }
+        );
 
     const iframe =
         document.createElement('iframe');
 
     iframe.id =
         'yt-iframe-' + playerNum;
+
+    const fps =
+        getFPS(playerNum);
 
     const start =
         Math.floor(startTime);
@@ -1242,34 +2081,61 @@ function createYouTubePlayer(
     iframe.style.border =
         '0';
 
-    container.appendChild(iframe);
+    container.appendChild(
+        iframe
+    );
+
+    const startFrame =
+        Math.round(
+            startTime * fps
+        );
+
+    const startFrameTime =
+        startFrame /
+        fps;
 
     players[playerNum] = {
 
         type: 'youtube',
 
         player: null,
-
         iframe: iframe,
-
         video: null,
 
-        fps: getFPS(playerNum),
-
+        fps: fps,
         frameDuration:
-            1 / getFPS(playerNum),
+            1 / fps,
 
-        frame: 0,
+        frame:
+            startFrame,
+
+        mediaTime:
+            startFrameTime,
+
+        frameTime:
+            startFrameTime,
 
         twitchReady: false,
-
         pendingPlay: false,
-        isPlaying: false
+        isPlaying: false,
+
+        duration: 0
 
     };
 
     iframe.onload =
         function() {
+
+            // Без этого сообщения YouTube никогда не начнёт
+            // присылать события 'infoDelivery' с currentTime
+            // и duration — шкала не сможет узнать длительность.
+            iframe.contentWindow.postMessage(
+                JSON.stringify({
+                    event: 'listening',
+                    id: iframe.id
+                }),
+                '*'
+            );
 
             setTimeout(
                 function() {
@@ -1278,7 +2144,7 @@ function createYouTubePlayer(
                         playerNum,
                         'seekTo',
                         [
-                            startTime,
+                            startFrameTime,
                             true
                         ]
                     );
@@ -1287,6 +2153,14 @@ function createYouTubePlayer(
                         playerNum,
                         'pauseVideo'
                     );
+
+                    sendYouTubeCommand(
+                        playerNum,
+                        'getDuration'
+                    );
+
+                    setupSeekMouseControls();
+                    updateSeekBars();
 
                 },
                 700
@@ -1311,15 +2185,19 @@ function createTwitchPlayer(
             'player' + playerNum
         );
 
+    if (!container) {
+        return;
+    }
+
     container
         .querySelectorAll(
             'iframe, video, [id^="twitch-player-"]'
         )
-        .forEach(function(element) {
-
-            element.remove();
-
-        });
+        .forEach(
+            function(element) {
+                element.remove();
+            }
+        );
 
     const twitchContainer =
         document.createElement('div');
@@ -1341,10 +2219,12 @@ function createTwitchPlayer(
     const parent =
         getTwitchParent();
 
+    const fps =
+        getFPS(playerNum);
+
     const options = {
 
         width: '100%',
-
         height: '100%',
 
         autoplay: false,
@@ -1379,47 +2259,61 @@ function createTwitchPlayer(
             options
         );
 
-    console.log(
-        'Twitch',
-        playerNum,
-        'создан:',
-        twitchInfo
-    );
+    const startFrame =
+        Math.round(
+            startTime * fps
+        );
+
+    const startFrameTime =
+        startFrame /
+        fps;
 
     players[playerNum] = {
 
-        type: twitchInfo.type,
+        type:
+            twitchInfo.type,
 
-        player: twitchPlayer,
+        player:
+            twitchPlayer,
 
-        iframe: null,
+        iframe:
+            null,
 
-        video: null,
+        video:
+            null,
 
-        fps: getFPS(playerNum),
+        fps:
+            fps,
 
         frameDuration:
-            1 / getFPS(playerNum),
+            1 / fps,
 
-        frame: 0,
+        frame:
+            startFrame,
 
-        twitchReady: false,
+        mediaTime:
+            startFrameTime,
 
-        pendingPlay: false,
+        frameTime:
+            startFrameTime,
 
-        isPlaying: false
+        twitchReady:
+            false,
+
+        pendingPlay:
+            false,
+
+        isPlaying:
+            false,
+
+        duration:
+            0
 
     };
 
     twitchPlayer.addEventListener(
         Twitch.Player.READY,
         function() {
-
-            console.log(
-                'Twitch',
-                playerNum,
-                'READY'
-            );
 
             const info =
                 players[playerNum];
@@ -1431,32 +2325,64 @@ function createTwitchPlayer(
             info.twitchReady =
                 true;
 
-            if (
-                twitchInfo.type === 'twitch-vod' &&
-                startTime > 0
-            ) {
+            // Twitch.Player отдаёт длительность синхронно,
+            // но без этого вызова info.duration так и
+            // остаётся равным 0, и шкала не может работать.
+            try {
 
-                try {
+                const twitchDuration =
+                    twitchPlayer.getDuration();
 
-                    twitchPlayer.seek(
-                        startTime
-                    );
+                if (
+                    Number.isFinite(twitchDuration) &&
+                    twitchDuration > 0
+                ) {
 
-                }
-
-                catch (error) {
-
-                    console.log(
-                        'Ошибка Twitch seek:',
-                        error
-                    );
+                    info.duration =
+                        twitchDuration;
 
                 }
 
             }
 
-            // Если PLAY был нажат до READY,
-            // запускаем воспроизведение после готовности плеера.
+            catch (error) {
+
+                console.log(
+                    'Не удалось получить длительность Twitch:',
+                    error
+                );
+
+            }
+
+            if (
+                twitchInfo.type === 'twitch-vod'
+            ) {
+
+                if (startFrameTime > 0) {
+
+                    try {
+
+                        twitchPlayer.seek(
+                            startFrameTime
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        console.log(
+                            'Ошибка Twitch seek:',
+                            error
+                        );
+
+                    }
+
+                }
+
+            }
+
+            setupSeekMouseControls();
+            updateSeekBars();
 
             if (
                 info.pendingPlay
@@ -1473,20 +2399,19 @@ function createTwitchPlayer(
 
                         if (
                             current &&
-                            current.player === twitchPlayer &&
+                            current.player ===
+                                twitchPlayer &&
                             current.twitchReady
                         ) {
-
-                            console.log(
-                                'Twitch',
-                                playerNum,
-                                'PLAY → pendingPlay'
-                            );
 
                             current.player.play();
 
                             current.isPlaying =
                                 true;
+
+                            startExternalFrameTimer(
+                                playerNum
+                            );
 
                         }
 
@@ -1527,7 +2452,7 @@ function isLocalVideoFile(input) {
 }
 
 // ============================================================
-// ЗАГРУЗКА ЛОКАЛЬНОГО ФАЙЛА
+// ЗАГРУЗКА ЛОКАЛЬНОГО ВИДЕО
 // ============================================================
 
 function loadLocalVideo(
@@ -1554,21 +2479,28 @@ function loadLocalVideo(
     const startTime =
         getStartTime(playerNum);
 
-    destroyPlayer(playerNum);
-
     if (playerNum === 1) {
 
-        videoTime1 =
-            startTime;
+        finishTime1 = null;
+        resultTime1 = null;
 
     }
 
     else {
 
-        videoTime2 =
-            startTime;
+        finishTime2 = null;
+        resultTime2 = null;
 
     }
+
+    updateResultDisplays();
+
+    destroyPlayer(playerNum);
+
+    setVideoTime(
+        playerNum,
+        startTime
+    );
 
     updateTimerDisplays();
 
@@ -1592,6 +2524,10 @@ window.loadEmbedVideo =
                 'code' + playerNum
             );
 
+        if (!input) {
+            return;
+        }
+
         const value =
             input.value.trim();
 
@@ -1599,7 +2535,8 @@ window.loadEmbedVideo =
 
             const fileInput =
                 document.getElementById(
-                    'local-file-' + playerNum
+                    'local-file-' +
+                    playerNum
                 );
 
             if (fileInput) {
@@ -1658,17 +2595,24 @@ window.loadEmbedVideo =
 
         if (playerNum === 1) {
 
-            videoTime1 =
-                startTime;
+            finishTime1 = null;
+            resultTime1 = null;
 
         }
 
         else {
 
-            videoTime2 =
-                startTime;
+            finishTime2 = null;
+            resultTime2 = null;
 
         }
+
+        updateResultDisplays();
+
+        setVideoTime(
+            playerNum,
+            startTime
+        );
 
         updateTimerDisplays();
 
@@ -1699,18 +2643,19 @@ window.loadEmbedVideo =
                 startTime
             );
 
-            return;
-
         }
 
-};
+    };
 
 // ============================================================
-// ОБРАБОТЧИК ВЫБОРА ЛОКАЛЬНОГО ФАЙЛА
+// ОБРАБОТЧИК ЛОКАЛЬНОГО ФАЙЛА
 // ============================================================
 
 window.handleLocalFile =
-    function(playerNum, input) {
+    function(
+        playerNum,
+        input
+    ) {
 
         if (
             !input ||
@@ -1729,8 +2674,6 @@ window.handleLocalFile =
             playerNum,
             file
         );
-
-        // Позволяет повторно выбрать тот же файл.
 
         input.value = '';
 
@@ -1761,11 +2704,14 @@ function sendYouTubeCommand(
     const message =
         JSON.stringify({
 
-            event: 'command',
+            event:
+                'command',
 
-            func: funcName,
+            func:
+                funcName,
 
-            args: argsArray
+            args:
+                argsArray
 
         });
 
@@ -1777,10 +2723,12 @@ function sendYouTubeCommand(
 }
 
 // ============================================================
-// ПОЛУЧЕНИЕ ТЕКУЩЕГО ВРЕМЕНИ YOUTUBE
+// ПОЛУЧЕНИЕ ВРЕМЕНИ YOUTUBE
 // ============================================================
 
-function requestYouTubeCurrentTime(playerNum) {
+function requestYouTubeCurrentTime(
+    playerNum
+) {
 
     const info =
         players[playerNum];
@@ -1795,20 +2743,9 @@ function requestYouTubeCurrentTime(playerNum) {
 
     }
 
-    info.iframe.contentWindow.postMessage(
-
-        JSON.stringify({
-
-            event: 'command',
-
-            func: 'getCurrentTime',
-
-            args: []
-
-        }),
-
-        '*'
-
+    sendYouTubeCommand(
+        playerNum,
+        'getCurrentTime'
     );
 
 }
@@ -1859,8 +2796,6 @@ window.addEventListener(
 
             }
 
-            // Принимаем сообщения только от нашего iframe.
-
             if (
                 event.source !==
                 info.iframe.contentWindow
@@ -1869,8 +2804,6 @@ window.addEventListener(
                 continue;
 
             }
-
-            // infoDelivery содержит текущее состояние YouTube-плеера.
 
             if (
                 data.event === 'infoDelivery' &&
@@ -1886,14 +2819,38 @@ window.addEventListener(
                     info.mediaTime =
                         data.info.currentTime;
 
-                    console.log(
-                        'YouTube',
-                        playerNum,
-                        'реальное время:',
+                }
+
+                if (
+                    Number.isFinite(
+                        data.info.duration
+                    )
+                ) {
+
+                    info.duration =
+                        data.info.duration;
+
+                }
+
+                if (
+                    Number.isFinite(
                         info.mediaTime
+                    ) &&
+                    !info.isPlaying
+                ) {
+
+                    setPlayerFrame(
+                        playerNum,
+                        timeToFrame(
+                            playerNum,
+                            info.mediaTime
+                        ),
+                        false
                     );
 
                 }
+
+                updateTimerDisplays();
 
             }
 
@@ -1923,18 +2880,31 @@ function playVideo(playerNum) {
             return;
         }
 
+        syncFramePosition(
+            playerNum
+        );
+
         const promise =
             info.video.play();
 
-        info.isPlaying = true;
+        info.isPlaying =
+            true;
+
+        startLocalFrameTimer(
+            playerNum
+        );
 
         if (
             promise &&
-            typeof promise.catch === 'function'
+            typeof promise.catch ===
+                'function'
         ) {
 
             promise.catch(
                 function(error) {
+
+                    info.isPlaying =
+                        false;
 
                     console.log(
                         'Ошибка запуска локального видео:',
@@ -1954,12 +2924,21 @@ function playVideo(playerNum) {
         info.type === 'youtube'
     ) {
 
+        syncFramePosition(
+            playerNum
+        );
+
         sendYouTubeCommand(
             playerNum,
             'playVideo'
         );
 
-        info.isPlaying = true;
+        info.isPlaying =
+            true;
+
+        startYouTubeTimer(
+            playerNum
+        );
 
         return;
 
@@ -1983,8 +2962,48 @@ function playVideo(playerNum) {
 
         }
 
+        if (info.duration <= 0) {
+
+            try {
+
+                const twitchDuration =
+                    info.player.getDuration();
+
+                if (
+                    Number.isFinite(twitchDuration) &&
+                    twitchDuration > 0
+                ) {
+
+                    info.duration =
+                        twitchDuration;
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    'Не удалось получить длительность Twitch:',
+                    error
+                );
+
+            }
+
+        }
+
+        syncFramePosition(
+            playerNum
+        );
+
         info.player.play();
-        info.isPlaying = true;
+
+        info.isPlaying =
+            true;
+
+        startExternalFrameTimer(
+            playerNum
+        );
 
     }
 
@@ -2003,13 +3022,14 @@ function pauseVideo(playerNum) {
         return;
     }
 
+    stopFrameTimer(playerNum);
+    stopYouTubeTimer(playerNum);
+
     if (
         info.type === 'local'
     ) {
 
         if (info.video) {
-
-            // Перед паузой сохраняем фактическое положение видео.
 
             if (
                 Number.isFinite(
@@ -2020,14 +3040,14 @@ function pauseVideo(playerNum) {
                 info.mediaTime =
                     info.video.currentTime;
 
-                info.frame =
-                    Math.max(
-                        0,
-                        Math.round(
-                            info.mediaTime *
-                            info.fps
-                        )
-                    );
+                setPlayerFrame(
+                    playerNum,
+                    timeToFrame(
+                        playerNum,
+                        info.mediaTime
+                    ),
+                    false
+                );
 
             }
 
@@ -2035,7 +3055,10 @@ function pauseVideo(playerNum) {
 
         }
 
-        info.isPlaying = false;
+        info.isPlaying =
+            false;
+
+        updateTimerDisplays();
 
         return;
 
@@ -2050,7 +3073,9 @@ function pauseVideo(playerNum) {
             'pauseVideo'
         );
 
-        info.isPlaying = false;
+        info.isPlaying =
+            false;
+
         return;
 
     }
@@ -2064,12 +3089,11 @@ function pauseVideo(playerNum) {
             false;
 
         if (info.player) {
-
             info.player.pause();
-
         }
 
-        info.isPlaying = false;
+        info.isPlaying =
+            false;
 
     }
 
@@ -2084,9 +3108,15 @@ function seekVideo(
     time
 ) {
 
-    if (time < 0) {
+    if (!Number.isFinite(time)) {
         time = 0;
     }
+
+    time =
+        Math.max(
+            0,
+            time
+        );
 
     const info =
         players[playerNum];
@@ -2094,6 +3124,18 @@ function seekVideo(
     if (!info) {
         return;
     }
+
+    const frame =
+        timeToFrame(
+            playerNum,
+            time
+        );
+
+    const frameTime =
+        frameToTime(
+            playerNum,
+            frame
+        );
 
     if (
         info.type === 'local'
@@ -2109,16 +3151,38 @@ function seekVideo(
                     )
                 ) {
 
-                    time =
-                        Math.min(
-                            time,
-                            info.video.duration
+                    const maxFrame =
+                        Math.floor(
+                            info.video.duration *
+                            info.fps
                         );
+
+                    const limitedFrame =
+                        Math.min(
+                            frame,
+                            maxFrame
+                        );
+
+                    setPlayerFrame(
+                        playerNum,
+                        limitedFrame,
+                        false
+                    );
+
+                }
+
+                else {
+
+                    setPlayerFrame(
+                        playerNum,
+                        frame,
+                        false
+                    );
 
                 }
 
                 info.video.currentTime =
-                    time;
+                    info.frameTime;
 
             }
 
@@ -2133,6 +3197,8 @@ function seekVideo(
 
         }
 
+        updateTimerDisplays();
+
         return;
 
     }
@@ -2141,14 +3207,34 @@ function seekVideo(
         info.type === 'youtube'
     ) {
 
+        stopYouTubeTimer(
+            playerNum
+        );
+
+        setPlayerFrame(
+            playerNum,
+            frame,
+            false
+        );
+
         sendYouTubeCommand(
             playerNum,
             'seekTo',
             [
-                time,
+                frameTime,
                 true
             ]
         );
+
+        updateTimerDisplays();
+
+        if (info.isPlaying) {
+
+            startYouTubeTimer(
+                playerNum
+            );
+
+        }
 
         return;
 
@@ -2158,12 +3244,22 @@ function seekVideo(
         info.type === 'twitch-vod'
     ) {
 
+        stopFrameTimer(
+            playerNum
+        );
+
+        setPlayerFrame(
+            playerNum,
+            frame,
+            false
+        );
+
         if (info.player) {
 
             try {
 
                 info.player.seek(
-                    time
+                    frameTime
                 );
 
             }
@@ -2176,6 +3272,16 @@ function seekVideo(
                 );
 
             }
+
+        }
+
+        updateTimerDisplays();
+
+        if (info.isPlaying) {
+
+            startExternalFrameTimer(
+                playerNum
+            );
 
         }
 
@@ -2196,32 +3302,30 @@ function seekVideo(
 }
 
 // ============================================================
-// КАДРОВЫЙ ТАЙМЕР
-// ============================================================
-//
-// Локальное видео:
-//     время обновляется через requestVideoFrameCallback()
-//
-// YouTube / Twitch:
-//     положение рассчитывается по прошедшему времени и FPS.
-//
-// Кадровая модель:
-//     frame        — номер кадра
-//     frameDuration — длительность кадра
-//     frameTime    — время, соответствующее кадру
-//     mediaTime    — фактическое время медиаплеера
+// КАДРОВЫЕ ТАЙМЕРЫ
 // ============================================================
 
 let frameTimerHandles = {
+
     1: null,
     2: null
+
+};
+
+let youtubeTimerHandles = {
+
+    1: null,
+    2: null
+
 };
 
 // ============================================================
 // ОСТАНОВКА КАДРОВОГО ТАЙМЕРА
 // ============================================================
 
-function stopFrameTimer(playerNum) {
+function stopFrameTimer(
+    playerNum
+) {
 
     const handle =
         frameTimerHandles[playerNum];
@@ -2238,15 +3342,12 @@ function stopFrameTimer(playerNum) {
 }
 
 // ============================================================
-// ТАЙМЕР YOUTUBE
+// ОСТАНОВКА YOUTUBE ТАЙМЕРА
 // ============================================================
 
-let youtubeTimerHandles = {
-    1: null,
-    2: null
-};
-
-function stopYouTubeTimer(playerNum) {
+function stopYouTubeTimer(
+    playerNum
+) {
 
     const handle =
         youtubeTimerHandles[playerNum];
@@ -2262,7 +3363,13 @@ function stopYouTubeTimer(playerNum) {
 
 }
 
-function startYouTubeTimer(playerNum) {
+// ============================================================
+// YOUTUBE КАДРОВОЙ ТАЙМЕР
+// ============================================================
+
+function startYouTubeTimer(
+    playerNum
+) {
 
     const info =
         players[playerNum];
@@ -2276,22 +3383,20 @@ function startYouTubeTimer(playerNum) {
 
     }
 
-    stopYouTubeTimer(playerNum);
+    stopYouTubeTimer(
+        playerNum
+    );
 
-    // Для YouTube таймер использует системные часы браузера,
-    // а затем переводит прошедшее время в кадры выбранного FPS.
-
-    const startClock =
+    let lastClock =
         performance.now();
 
-    const startFrame =
+    let accumulatedTime =
+        0;
+
+    let currentFrame =
         Number.isFinite(info.frame)
             ? info.frame
             : 0;
-
-    const startTime =
-        startFrame *
-        info.frameDuration;
 
     function update() {
 
@@ -2303,63 +3408,85 @@ function startYouTubeTimer(playerNum) {
             current.type !== 'youtube'
         ) {
 
-            stopYouTubeTimer(playerNum);
+            stopYouTubeTimer(
+                playerNum
+            );
+
             return;
 
         }
 
         if (!current.isPlaying) {
 
-            stopYouTubeTimer(playerNum);
+            stopYouTubeTimer(
+                playerNum
+            );
+
             return;
 
         }
 
-        const elapsed =
-            (
-                performance.now() -
-                startClock
-            ) / 1000;
+        const now =
+            performance.now();
 
-        const time =
-            startTime +
-            elapsed;
-
-        current.frame =
+        const delta =
             Math.max(
                 0,
-                Math.round(
-                    time *
-                    current.fps
-                )
+                (now - lastClock) / 1000
             );
 
-        const frameTime =
-            current.frame *
-            current.frameDuration;
+        lastClock =
+            now;
 
-        if (playerNum === 1) {
+        accumulatedTime +=
+            delta;
 
-            videoTime1 =
-                frameTime;
+        const framesPassed =
+            Math.floor(
+                accumulatedTime *
+                current.fps
+            );
+
+        if (framesPassed > 0) {
+
+            accumulatedTime -=
+                framesPassed /
+                current.fps;
+
+            currentFrame +=
+                framesPassed;
 
         }
 
-        else {
+        if (
+            current.duration > 0
+        ) {
 
-            videoTime2 =
-                frameTime;
+            const maxFrame =
+                Math.floor(
+                    current.duration *
+                    current.fps
+                );
+
+            currentFrame =
+                Math.min(
+                    currentFrame,
+                    maxFrame
+                );
 
         }
 
-        updateTimerDisplays();
+        setPlayerFrame(
+            playerNum,
+            currentFrame
+        );
 
     }
 
     youtubeTimerHandles[playerNum] =
         setInterval(
             update,
-            15
+            5
         );
 
     update();
@@ -2367,15 +3494,12 @@ function startYouTubeTimer(playerNum) {
 }
 
 // ============================================================
-// КАДРОВЫЙ ТАЙМЕР YOUTUBE / TWITCH
-// ============================================================
-//
-// Эти плееры не дают прямого доступа к фактически отображаемому
-// кадру, поэтому положение рассчитывается по прошедшему времени
-// и FPS конкретного видео.
+// TWITCH / EXTERNAL КАДРОВОЙ ТАЙМЕР
 // ============================================================
 
-function startExternalFrameTimer(playerNum) {
+function startExternalFrameTimer(
+    playerNum
+) {
 
     const info =
         players[playerNum];
@@ -2384,19 +3508,20 @@ function startExternalFrameTimer(playerNum) {
         return;
     }
 
-    stopFrameTimer(playerNum);
+    stopFrameTimer(
+        playerNum
+    );
 
-    const startClock =
+    let lastClock =
         performance.now();
 
-    const startFrame =
+    let accumulatedTime =
+        0;
+
+    let currentFrame =
         Number.isFinite(info.frame)
             ? info.frame
             : 0;
-
-    const startTime =
-        startFrame *
-        info.frameDuration;
 
     function nextFrame() {
 
@@ -2432,49 +3557,69 @@ function startExternalFrameTimer(playerNum) {
 
         }
 
-        const elapsed =
-            (
-                performance.now() -
-                startClock
-            ) / 1000;
+        const now =
+            performance.now();
 
-        const time =
-            startTime +
-            elapsed;
-
-        current.frame =
+        const delta =
             Math.max(
                 0,
-                Math.round(
-                    time *
-                    current.fps
-                )
+                (now - lastClock) / 1000
             );
 
-        const frameTime =
-            current.frame *
-            current.frameDuration;
+        lastClock =
+            now;
 
-        if (playerNum === 1) {
+        accumulatedTime +=
+            delta;
 
-            videoTime1 =
-                frameTime;
+        const framesPassed =
+            Math.floor(
+                accumulatedTime *
+                current.fps
+            );
+
+        if (framesPassed > 0) {
+
+            accumulatedTime -=
+                framesPassed /
+                current.fps;
+
+            currentFrame +=
+                framesPassed;
 
         }
 
-        else {
+        if (
+            current.duration > 0
+        ) {
 
-            videoTime2 =
-                frameTime;
+            const maxFrame =
+                Math.floor(
+                    current.duration *
+                    current.fps
+                );
+
+            currentFrame =
+                Math.min(
+                    currentFrame,
+                    maxFrame
+                );
 
         }
 
-        updateTimerDisplays();
+        setPlayerFrame(
+            playerNum,
+            currentFrame
+        );
 
         frameTimerHandles[playerNum] =
             setTimeout(
                 nextFrame,
-                current.frameDuration * 1000
+                Math.max(
+                    1,
+                    current.frameDuration *
+                    1000
+                )
             );
 
     }
@@ -2484,15 +3629,12 @@ function startExternalFrameTimer(playerNum) {
 }
 
 // ============================================================
-// КАДРОВОЙ CALLBACK ЛОКАЛЬНОГО VIDEO
-// ============================================================
-//
-// requestVideoFrameCallback вызывается браузером при отображении
-// нового кадра. Поэтому локальное видео может использовать
-// фактическое время отображаемого кадра.
+// ЛОКАЛЬНЫЙ VIDEO FRAME CALLBACK
 // ============================================================
 
-function startLocalFrameTimer(playerNum) {
+function startLocalFrameTimer(
+    playerNum
+) {
 
     const info =
         players[playerNum];
@@ -2512,7 +3654,7 @@ function startLocalFrameTimer(playerNum) {
 
     if (
         typeof video.requestVideoFrameCallback !==
-        'function'
+            'function'
     ) {
 
         return;
@@ -2540,8 +3682,6 @@ function startLocalFrameTimer(playerNum) {
             return;
         }
 
-        // mediaTime — реальное время отображаемого кадра.
-
         if (
             metadata &&
             Number.isFinite(
@@ -2552,10 +3692,7 @@ function startLocalFrameTimer(playerNum) {
             const mediaTime =
                 metadata.mediaTime;
 
-            current.mediaTime =
-                mediaTime;
-
-            current.frame =
+            const frame =
                 Math.max(
                     0,
                     Math.round(
@@ -2564,25 +3701,12 @@ function startLocalFrameTimer(playerNum) {
                     )
                 );
 
-            updateTimerFromFrame(
-                playerNum
+            setPlayerFrame(
+                playerNum,
+                frame
             );
 
         }
-
-        else {
-
-            // Запасной вариант, если браузер не передал mediaTime.
-
-            current.frame += 1;
-
-            updateTimerFromFrame(
-                playerNum
-            );
-
-        }
-
-        updateTimerDisplays();
 
         video.requestVideoFrameCallback(
             onVideoFrame
@@ -2597,10 +3721,12 @@ function startLocalFrameTimer(playerNum) {
 }
 
 // ============================================================
-// СИНХРОНИЗАЦИЯ НАЧАЛЬНОГО КАДРА
+// СИНХРОНИЗАЦИЯ КАДРА
 // ============================================================
 
-function syncFramePosition(playerNum) {
+function syncFramePosition(
+    playerNum
+) {
 
     const info =
         players[playerNum];
@@ -2615,7 +3741,8 @@ function syncFramePosition(playerNum) {
             ? info.fps
             : getFPS(playerNum);
 
-    info.fps = fps;
+    info.fps =
+        fps;
 
     info.frameDuration =
         1 / fps;
@@ -2634,55 +3761,29 @@ function syncFramePosition(playerNum) {
 
     else {
 
-        if (playerNum === 1) {
-
-            time =
-                videoTime1;
-
-        }
-
-        else {
-
-            time =
-                videoTime2;
-
-        }
+        time =
+            getVideoTime(playerNum);
 
     }
 
-    info.frame =
+    const frame =
         Math.max(
             0,
             Math.round(
-                time * fps
+                time *
+                fps
             )
         );
 
-    // После округления возвращаем время,
-    // соответствующее фактическому кадру.
-
-    const frameTime =
-        info.frame *
-        info.frameDuration;
-
-    if (playerNum === 1) {
-
-        videoTime1 =
-            frameTime;
-
-    }
-
-    else {
-
-        videoTime2 =
-            frameTime;
-
-    }
+    setPlayerFrame(
+        playerNum,
+        frame
+    );
 
 }
 
 // ============================================================
-// ЗАПУСК КАДРОВОГО ТАЙМЕРА
+// ЗАПУСК КАДРОВЫХ ТАЙМЕРОВ
 // ============================================================
 
 function startLocalTimer() {
@@ -2752,7 +3853,9 @@ function startLocalTimer() {
 // ОЖИДАНИЕ TWITCH READY
 // ============================================================
 
-function waitForTwitchPlaying(playerNum) {
+function waitForTwitchPlaying(
+    playerNum
+) {
 
     return new Promise(
         function(resolve) {
@@ -2821,20 +3924,12 @@ function waitForTwitchPlaying(playerNum) {
                     const current =
                         players[playerNum];
 
-                    if (
-                        current &&
-                        current.twitchReady
-                    ) {
-
-                        resolve(true);
-
-                    }
-
-                    else {
-
-                        resolve(false);
-
-                    }
+                    resolve(
+                        !!(
+                            current &&
+                            current.twitchReady
+                        )
+                    );
 
                 },
                 15000
@@ -2846,6 +3941,103 @@ function waitForTwitchPlaying(playerNum) {
 }
 
 // ============================================================
+// ОСТАНОВКА ОДНОГО ВИДЕО (ПАУЗА + ВОЗВРАТ К НАЧАЛУ)
+// ============================================================
+
+function stopVideoPlayer(playerNum) {
+
+    pauseVideo(playerNum);
+
+    stopFrameTimer(playerNum);
+    stopYouTubeTimer(playerNum);
+
+    const start =
+        getStartTime(playerNum);
+
+    const info =
+        players[playerNum];
+
+    if (info) {
+
+        const frame =
+            Math.round(
+                start * info.fps
+            );
+
+        setPlayerFrame(
+            playerNum,
+            frame,
+            false
+        );
+
+    }
+
+    updateTimerDisplays();
+
+    seekVideo(
+        playerNum,
+        getVideoTime(playerNum)
+    );
+
+}
+
+// ============================================================
+// ЛОКАЛЬНОЕ УПРАВЛЕНИЕ ВИДЕО 1
+// ============================================================
+
+window.playVideo1 =
+    function() {
+
+        playVideo(1);
+
+    };
+
+window.pauseVideo1 =
+    function() {
+
+        pauseVideo(1);
+
+        stopFrameTimer(1);
+        stopYouTubeTimer(1);
+
+    };
+
+window.stopVideo1 =
+    function() {
+
+        stopVideoPlayer(1);
+
+    };
+
+// ============================================================
+// ЛОКАЛЬНОЕ УПРАВЛЕНИЕ ВИДЕО 2
+// ============================================================
+
+window.playVideo2 =
+    function() {
+
+        playVideo(2);
+
+    };
+
+window.pauseVideo2 =
+    function() {
+
+        pauseVideo(2);
+
+        stopFrameTimer(2);
+        stopYouTubeTimer(2);
+
+    };
+
+window.stopVideo2 =
+    function() {
+
+        stopVideoPlayer(2);
+
+    };
+
+// ============================================================
 // СИНХРОННЫЙ СТАРТ
 // ============================================================
 
@@ -2853,7 +4045,6 @@ window.syncPlay =
     function() {
 
         playVideo(1);
-
         playVideo(2);
 
         startLocalTimer();
@@ -2868,15 +4059,12 @@ window.syncPause =
     function() {
 
         pauseVideo(1);
-
         pauseVideo(2);
 
         stopFrameTimer(1);
-
         stopFrameTimer(2);
 
         stopYouTubeTimer(1);
-
         stopYouTubeTimer(2);
 
     };
@@ -2896,37 +4084,43 @@ window.syncStop =
         const start2 =
             getStartTime(2);
 
-        videoTime1 =
-            start1;
+        const info1 =
+            players[1];
 
-        videoTime2 =
-            start2;
+        const info2 =
+            players[2];
 
-        players[1].frame =
-            Math.max(
-                0,
+        if (info1) {
+
+            const frame1 =
                 Math.round(
                     start1 *
-                    players[1].fps
-                )
+                    info1.fps
+                );
+
+            setPlayerFrame(
+                1,
+                frame1,
+                false
             );
 
-        players[2].frame =
-            Math.max(
-                0,
+        }
+
+        if (info2) {
+
+            const frame2 =
                 Math.round(
                     start2 *
-                    players[2].fps
-                )
+                    info2.fps
+                );
+
+            setPlayerFrame(
+                2,
+                frame2,
+                false
             );
 
-        videoTime1 =
-            players[1].frame *
-            players[1].frameDuration;
-
-        videoTime2 =
-            players[2].frame *
-            players[2].frameDuration;
+        }
 
         updateTimerDisplays();
 
@@ -2945,13 +4139,6 @@ window.syncStop =
 // ============================================================
 // ПЕРЕМОТКА ПО КАДРАМ
 // ============================================================
-//
-// Для каждого видео используется собственный FPS.
-//
-// Например:
-//     Видео 1 = 60 FPS → 1 кадр = 1/60 сек.
-//     Видео 2 = 30 FPS → 1 кадр = 1/30 сек.
-// ============================================================
 
 function seekPlayerByFrames(
     playerNum,
@@ -2965,20 +4152,11 @@ function seekPlayerByFrames(
         return;
     }
 
-    let fps =
+    const fps =
         Number.isFinite(info.fps) &&
         info.fps > 0
             ? info.fps
             : getFPS(playerNum);
-
-    if (
-        !Number.isFinite(fps) ||
-        fps <= 0
-    ) {
-
-        fps = 60;
-
-    }
 
     info.fps =
         fps;
@@ -2986,76 +4164,51 @@ function seekPlayerByFrames(
     info.frameDuration =
         1 / fps;
 
-    // Для локального видео берём фактическое currentTime.
-    // Остальные источники используют время таймера.
-
-    let currentTime = 0;
+    let currentFrame;
 
     if (
         info.type === 'local' &&
         info.video
     ) {
 
-        currentTime =
-            Number.isFinite(
-                info.video.currentTime
-            )
-                ? info.video.currentTime
-                : 0;
+        currentFrame =
+            Math.round(
+                info.video.currentTime *
+                fps
+            );
 
     }
 
     else {
 
-        currentTime =
-            playerNum === 1
-                ? videoTime1
-                : videoTime2;
+        currentFrame =
+            Number.isFinite(info.frame)
+                ? info.frame
+                : timeToFrame(
+                    playerNum,
+                    getVideoTime(playerNum)
+                );
 
     }
 
-    const currentFrame =
-        Math.round(
-            currentTime * fps
-        );
-
-    let newFrame =
-        currentFrame +
-        frameDelta;
-
-    newFrame =
+    const newFrame =
         Math.max(
             0,
-            Math.round(newFrame)
+            Math.round(
+                currentFrame +
+                frameDelta
+            )
         );
 
-    info.frame =
-        newFrame;
-
-    const newTime =
-        newFrame *
-        info.frameDuration;
-
-    if (playerNum === 1) {
-
-        videoTime1 =
-            newTime;
-
-    }
-
-    else {
-
-        videoTime2 =
-            newTime;
-
-    }
+    setPlayerFrame(
+        playerNum,
+        newFrame
+    );
 
     seekVideo(
         playerNum,
-        newTime
+        info.frameTime
     );
-
-    updateTimerDisplays();
 
 }
 
@@ -3123,26 +4276,16 @@ function seekPlayerBySeconds(
         return;
     }
 
-    let fps =
+    const fps =
         Number.isFinite(info.fps) &&
         info.fps > 0
             ? info.fps
             : getFPS(playerNum);
 
-    if (
-        !Number.isFinite(fps) ||
-        fps <= 0
-    ) {
-
-        fps = 60;
-
-    }
-
-    // Секунды переводятся в целое количество кадров.
-
     const frameDelta =
         Math.round(
-            seconds * fps
+            seconds *
+            fps
         );
 
     seekPlayerByFrames(
@@ -3151,6 +4294,18 @@ function seekPlayerBySeconds(
     );
 
 }
+
+// ============================================================
+// СИНХРОННАЯ ПЕРЕМОТКА НА СЕКУНДЫ
+// ============================================================
+
+window.syncSeekBySeconds =
+    function(seconds) {
+
+        seekPlayerBySeconds(1, seconds);
+        seekPlayerBySeconds(2, seconds);
+
+    };
 
 // ============================================================
 // ПЕРЕМОТКА ВИДЕО 1 ПО СЕКУНДАМ
@@ -3224,11 +4379,15 @@ window.toggleTimersVisibility =
 
         if (timersVisible) {
 
-            timer1.style.display =
-                'none';
+            if (timer1) {
+                timer1.style.display =
+                    'none';
+            }
 
-            timer2.style.display =
-                'none';
+            if (timer2) {
+                timer2.style.display =
+                    'none';
+            }
 
             if (btn) {
 
@@ -3244,11 +4403,19 @@ window.toggleTimersVisibility =
 
         else {
 
-            timer1.style.display =
-                'block';
+            if (timer1) {
 
-            timer2.style.display =
-                'block';
+                timer1.style.display =
+                    'table';
+
+            }
+
+            if (timer2) {
+
+                timer2.style.display =
+                    'table';
+
+            }
 
             if (btn) {
 
@@ -3264,12 +4431,148 @@ window.toggleTimersVisibility =
 
     };
 
-function resetStartTime(videoNumber) {
+// ============================================================
+// СБРОС НАЧАЛЬНОГО ВРЕМЕНИ
+// ============================================================
 
-    document.getElementById(`hour${videoNumber}`).value = 0;
-    document.getElementById(`min${videoNumber}`).value = 0;
-    document.getElementById(`sec${videoNumber}`).value = 0;
-    document.getElementById(`cs${videoNumber}`).value = 0;
+function resetStartTime(
+    videoNumber
+) {
+
+    document.getElementById(
+        `hour${videoNumber}`
+    ).value = 0;
+
+    document.getElementById(
+        `min${videoNumber}`
+    ).value = 0;
+
+    document.getElementById(
+        `sec${videoNumber}`
+    ).value = 0;
+
+    document.getElementById(
+        `cs${videoNumber}`
+    ).value = 0;
+
+    updateStartTimeDisplay(
+        videoNumber
+    );
+
+}
+
+// ============================================================
+// УСТАНОВКА НАЧАЛЬНОГО ВРЕМЕНИ ИЗ ТАЙМЕРА
+// ============================================================
+
+function setStartTimeFromTimer(
+    videoNumber
+) {
+
+    if (videoNumber === 1) {
+
+        finishTime1 = null;
+        resultTime1 = null;
+
+    }
+
+    else {
+
+        finishTime2 = null;
+        resultTime2 = null;
+
+    }
+
+    updateResultDisplays();
+
+    // Новое "начало" делает старый "конец" и разницу
+    // неактуальными, пока их не зафиксируют заново.
+    updateEndTimeDisplay(
+        videoNumber,
+        0
+    );
+
+    updateTimeDifferenceDisplay(
+        videoNumber,
+        0
+    );
+
+    let time =
+        getVideoTime(videoNumber);
+
+    if (
+        !Number.isFinite(time) ||
+        time < 0
+    ) {
+
+        time = 0;
+
+    }
+
+    const totalMilliseconds =
+        Math.round(
+            time * 1000
+        );
+
+    const hours =
+        Math.floor(
+            totalMilliseconds /
+            3600000
+        );
+
+    const minutes =
+        Math.floor(
+            (
+                totalMilliseconds %
+                3600000
+            ) /
+            60000
+        );
+
+    const seconds =
+        Math.floor(
+            (
+                totalMilliseconds %
+                60000
+            ) /
+            1000
+        );
+
+    const milliseconds =
+        totalMilliseconds %
+        1000;
+
+    document.getElementById(
+        `hour${videoNumber}`
+    ).value = hours;
+
+    document.getElementById(
+        `min${videoNumber}`
+    ).value = minutes;
+
+    document.getElementById(
+        `sec${videoNumber}`
+    ).value = seconds;
+
+    document.getElementById(
+        `cs${videoNumber}`
+    ).value = milliseconds;
+
+    updateStartTimeDisplay(
+        videoNumber
+    );
+
+}
+
+// ============================================================
+// НАСТРОЙКА НОВЫХ ШКАЛ
+// ============================================================
+
+function initializeSeekBars() {
+
+    setupSeekMouseControls();
+
+    updateSeekBars();
 
 }
 
@@ -3279,4 +4582,11 @@ function resetStartTime(videoNumber) {
 
 setupTimeInputLimits();
 
+initializeSeekBars();
+
 updateTimerDisplays();
+
+updateResultDisplays();
+
+updateStartTimeDisplay(1);
+updateStartTimeDisplay(2);

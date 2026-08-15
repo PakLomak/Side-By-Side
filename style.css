@@ -6,372 +6,198 @@
     box-sizing: border-box;
 }
 
+html,
 body {
-    font-family: sans-serif;
-    background: #121212;
-    color: #fff;
-    text-align: center;
-
     margin: 0;
-    padding: 15px;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #141414;
+    color: #e0e0e0;
+
+    padding: 20px 20px 40px;
 
     overflow-x: auto;
 }
 
 
 /* ==========================================================
-   ВЕРХНЯЯ ПАНЕЛЬ ВИДЕО
+   ОСНОВНОЙ КОНТЕЙНЕР
    ========================================================== */
 
-.inputs-container {
-    display: flex;
+.compare-layout {
+    width: 100%;
+    max-width: 1680px;
 
-    justify-content: center;
-    align-items: flex-start;
+    margin: 0 auto;
+}
 
-    gap: 12px;
+
+/* ==========================================================
+   ВЕРХНЯЯ ПАНЕЛЬ
+   ========================================================== */
+
+.sources-row {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: 1fr auto 1fr;
+
+    align-items: start;
+
+    gap: 20px;
 
     width: 100%;
-    max-width: 1400px;
 
-    margin: 0 auto 15px;
-
-    flex-wrap: nowrap;
+    margin-bottom: 14px;
 }
 
 
 /* ==========================================================
-   БЛОК VIDEO 1 / VIDEO 2
+   ИСТОЧНИК ВИДЕО
    ========================================================== */
 
-.input-group {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 8px;
-
-    width: 50%;
-    min-width: 0;
-
-    padding: 9px;
-
-    background: #1e1e1e;
-
-    border: 1px solid #333;
-    border-radius: 7px;
-}
-
-
-/* ==========================================================
-   ССЫЛКА + ОТКРЫТЬ + ЛОКАЛЬНОЕ ВИДЕО
-   ========================================================== */
-
-.video-source-row {
+.video-source {
     display: flex;
 
     align-items: center;
 
-    gap: 5px;
+    gap: 4px;
 
     width: 100%;
+    height: 40px;
+
+    padding: 4px;
+
+    background: #252525;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
 }
 
 
-/* Ссылка */
+/* ==========================================================
+   ССЫЛКА
+   ========================================================== */
 
-.video-source-row textarea {
-    flex: 1;
+.video-source textarea {
+    flex: 1 1 auto;
 
-    width: auto;
+    width: 100%;
     min-width: 0;
 
-    height: 34px;
+    height: 30px;
 
-    padding: 7px 8px;
-
-    background: #222;
-
-    border: 1px solid #444;
-    border-radius: 4px;
-
-    color: #fff;
-
-    font-family: sans-serif;
-    font-size: 12px;
+    padding: 7px 9px;
 
     resize: none;
 
     outline: none;
+
+    background: #1d1d1d;
+
+    color: #dddddd;
+
+    border: 1px solid #444444;
+    border-radius: 2px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+
+    line-height: 14px;
 }
 
-.video-source-row textarea:focus {
-    border-color: #666;
+.video-source textarea::placeholder {
+    color: #777777;
+}
+
+.video-source textarea:focus {
+    border-color: #666666;
 }
 
 
 /* ==========================================================
-   КНОПКА "ОТКРЫТЬ"
+   ОТКРЫТЬ
    ========================================================== */
 
 .btn-open-video {
-    flex-shrink: 0;
+    flex: 0 0 64px;
 
-    width: 72px;
-    height: 34px;
+    width: 64px;
+    height: 30px;
 
     padding: 0;
 
-    background: #4caf50;
+    background: #333333;
+    color: #dddddd;
 
-    color: #fff;
+    border: 1px solid #555555;
+    border-radius: 2px;
 
-    border: none;
-    border-radius: 4px;
-
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
 
     cursor: pointer;
-
-    transition:
-        background 0.15s,
-        transform 0.1s;
 }
 
 .btn-open-video:hover {
-    background: #45a049;
-}
-
-.btn-open-video:active {
-    transform: scale(0.98);
+    background: #444444;
+    color: #ffffff;
 }
 
 
 /* ==========================================================
-   КНОПКА ЛОКАЛЬНОГО ВИДЕО
+   ЛОКАЛЬНОЕ ВИДЕО
    ========================================================== */
 
 .btn-local-video {
-    flex-shrink: 0;
+    flex: 0 0 30px;
 
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
 
     padding: 0;
 
-    background: #303030;
+    background: #333333;
+    color: #dddddd;
 
-    color: #aaa;
+    border: 1px solid #555555;
+    border-radius: 2px;
 
-    border: 1px solid #444;
-    border-radius: 4px;
-
-    font-size: 15px;
+    font-size: 14px;
 
     cursor: pointer;
-
-    transition:
-        background 0.15s,
-        color 0.15s;
 }
 
 .btn-local-video:hover {
-    background: #3a3a3a;
-    color: #fff;
+    background: #444444;
 }
 
 
 /* ==========================================================
-   НАСТРОЙКИ ВИДЕО
+   ОБЩЕЕ УПРАВЛЕНИЕ
    ========================================================== */
 
-.video-settings-row {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 12px;
-
-    width: 100%;
-
-    white-space: nowrap;
-}
-
-
-/* ==========================================================
-   НАЧАТЬ С
-   ========================================================== */
-
-.time-input-block {
-    display: flex;
-
-    align-items: center;
-
-    gap: 3px;
-
-    min-width: 0;
-
-    color: #aaa;
-
-    font-size: 12px;
-}
-
-
-/* Поля времени */
-
-.time-input-block input {
-    width: 60px;
-    height: 28px;
-
-    padding: 2px 4px;
-
-    text-align: center;
-
-    background: #222;
-
-    border: 1px solid #444;
-    border-radius: 4px;
-
-    color: #fff;
-
-    font-size: 12px;
-}
-
-
-/* ==========================================================
-   СБРОС НАЧАЛЬНОГО ВРЕМЕНИ
-   ========================================================== */
-
-.btn-reset-start-time {
-    flex-shrink: 0;
-
-    width: 26px;
-    height: 26px;
-
-    padding: 0;
-    margin-left: 2px;
-
+.global-player-controls {
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    background: #303030;
+    gap: 4px;
 
-    color: #aaa;
+    min-height: 40px;
 
-    border: 1px solid #444;
-    border-radius: 4px;
+    padding: 3px 4px;
 
-    font-size: 15px;
-    font-weight: normal;
+    background: #252525;
 
-    cursor: pointer;
-
-    transition:
-        background 0.15s,
-        color 0.15s,
-        transform 0.1s;
-}
-
-.btn-reset-start-time:hover {
-    background: #3a3a3a;
-    color: #fff;
-}
-
-
-/* ==========================================================
-   FPS
-   ========================================================== */
-
-.fps-input-block {
-    display: flex;
-
-    align-items: center;
-
-    gap: 3px;
-
-    min-width: 0;
-
-    color: #aaa;
-
-    font-size: 12px;
-}
-
-
-/* FPS поле */
-
-.fps-input-block input {
-    width: 52px;
-    height: 26px;
-
-    padding: 2px;
-
-    text-align: center;
-
-    background: #222;
-
-    border: 1px solid #444;
-    border-radius: 4px;
-
-    color: #fff;
-
-    font-size: 12px;
-}
-
-
-/* Ручной */
-
-.fps-status {
-    margin-left: 2px;
-
-    color: #aaa;
-
-    opacity: 0.55;
-
-    font-size: 11px;
-}
-
-
-/* ==========================================================
-   ОБНОВИТЬ FPS
-   ========================================================== */
-
-.btn-fps-refresh {
-    flex-shrink: 0;
-
-    width: 26px;
-    height: 26px;
-
-    padding: 0;
-    margin-left: 2px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    background: #303030;
-
-    color: #aaa;
-
-    border: 1px solid #444;
-    border-radius: 4px;
-
-    font-size: 15px;
-
-    cursor: pointer;
-
-    transition:
-        background 0.15s,
-        color 0.15s;
-}
-
-.btn-fps-refresh:hover {
-    background: #3a3a3a;
-    color: #fff;
+    border: 1px solid #111111;
+    border-radius: 2px;
 }
 
 
@@ -380,7 +206,7 @@ body {
    ========================================================== */
 
 button {
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 
     cursor: pointer;
 
@@ -388,33 +214,17 @@ button {
 }
 
 button:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 
 /* ==========================================================
-   ОСНОВНЫЕ КНОПКИ УПРАВЛЕНИЯ
+   КНОПКИ PLAY / PAUSE / STOP
    ========================================================== */
-
-.controls {
-    margin-bottom: 12px;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    gap: 10px;
-}
-
-.main-controls {
-    align-items: center;
-}
-
 
 .btn-control {
-    width: 48px;
-    height: 42px;
+    width: 38px;
+    height: 34px;
 
     padding: 0;
 
@@ -423,348 +233,96 @@ button:active {
     align-items: center;
     justify-content: center;
 
-    color: #fff;
+    background: #333333;
 
-    border: none;
-    border-radius: 4px;
+    color: #bbbbbb;
 
-    font-size: 20px;
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.btn-control:hover {
+    background: #444444;
+    color: #ffffff;
 }
 
 
-/* Запуск */
+.btn-skip {
+    width: 34px;
+    height: 34px;
 
-.btn-play {
-    background: #2e7d32;
+    font-size: 19px;
+    font-weight: normal;
 }
+
+.btn-skip:hover {
+    background: #444444;
+    color: #ffffff;
+}
+
+
+/* PLAY */
 
 .btn-play:hover {
-    background: #1b5e20;
+    background: #263c2a;
+    color: #7ee68d;
 }
 
 
-/* Пауза */
-
-.btn-pause {
-    background: #f57c00;
-}
+/* PAUSE */
 
 .btn-pause:hover {
-    background: #e65100;
+    background: #44351f;
+    color: #ffc46b;
 }
 
 
-/* Стоп */
-
-.btn-stop {
-    background: #c62828;
-}
+/* STOP */
 
 .btn-stop:hover {
-    background: #b71c1c;
-}
-
-
-/* Таймеры */
-
-.btn-toggle-timers {
-    background: #00796b;
-}
-
-.btn-toggle-timers:hover {
-    background: #004d40;
+    background: #432525;
+    color: #ff7777;
 }
 
 
 /* ==========================================================
-   ПЕРЕКЛЮЧАТЕЛЬ РАСКЛАДКИ
-   ========================================================== */
-
-.layout-selector {
-    display: inline-flex;
-
-    gap: 3px;
-
-    padding: 4px;
-
-    background: #1a1a1a;
-
-    border: 1px solid #2d2d2d;
-    border-radius: 6px;
-}
-
-
-.btn-layout {
-    width: 38px;
-    height: 32px;
-
-    padding: 0;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    background: #333;
-
-    color: #ccc;
-
-    border: none;
-    border-radius: 4px;
-
-    font-size: 16px;
-}
-
-.btn-layout:hover {
-    background: #444;
-    color: #fff;
-}
-
-.btn-layout.active {
-    background: #6200ea;
-    color: #fff;
-}
-
-
-/* ==========================================================
-   КОНТЕЙНЕР ВИДЕО
+   КОНТЕЙНЕР ДВУХ ВИДЕО
    ========================================================== */
 
 .video-container {
     display: flex;
 
+    flex-direction: row;
+
+    align-items: flex-start;
+
     gap: 25px;
 
-    width: 100%;
-
-    margin: 0 auto;
-
-    transition: all 0.3s ease;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
 }
 
 
 /* ==========================================================
-   РЕЖИМ — РЯДОМ
+   КОЛОНКА ВИДЕО
    ========================================================== */
 
-.layout-side {
-    flex-direction: row;
-
-    justify-content: center;
-    align-items: flex-start;
-
-    max-width: 1400px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.layout-side .player-column {
-    width: calc((100% - 25px) / 2);
-
-    min-width: 400px;
-
+.player-column {
     flex: 1 1 0;
-}
 
-
-/* ==========================================================
-   РЕЖИМ — КРУПНО
-   ========================================================== */
-
-.layout-large {
-    flex-direction: row;
-
-    justify-content: center;
-    align-items: flex-start;
-
-    max-width: 1920px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.layout-large .player-column {
     width: calc((100% - 25px) / 2);
+    min-width: 0;
 
-    min-width: 400px;
+    display: flex;
 
-    flex: 1 1 0;
-}
-
-
-/* ==========================================================
-   РЕЖИМ — ВЕРТИКАЛЬНО
-   ========================================================== */
-
-.layout-vertical {
     flex-direction: column;
 
-    align-items: center;
+    align-items: stretch;
 
-    width: 100%;
-}
-
-.layout-vertical .player-column {
-    width: 70%;
-
-    min-width: 400px;
-    max-width: 900px;
-
-    margin-bottom: 20px;
-}
-
-
-/* ==========================================================
-   ПАНЕЛЬ ПЕРЕМОТКИ
-   ========================================================== */
-
-.video-seek-controls {
-    display: flex;
-
-    flex-direction: row;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 7px;
-
-    width: 100%;
-
-    margin-bottom: 8px;
-}
-
-
-/* ==========================================================
-   ГРУППА − ЗНАЧЕНИЕ +
-   ========================================================== */
-
-.seek-group {
-    display: flex;
-
-    align-items: center;
-
-    height: 26px;
-
-    background: #1a1a1a;
-
-    border: 1px solid #2b2b2b;
-    border-radius: 4px;
-
-    overflow: hidden;
-
-    transition:
-        border-color 0.15s,
-        background 0.15s;
-}
-
-.seek-group:hover {
-    border-color: #3a3a3a;
-    background: #1c1c1c;
-}
-
-
-/* ==========================================================
-   ЗНАЧЕНИЕ
-   ========================================================== */
-
-.seek-value {
-    min-width: 29px;
-    height: 26px;
-
-    padding: 0 5px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    color: #777;
-
-    font-size: 11px;
-    font-weight: normal;
-
-    user-select: none;
-
-    border-left: 1px solid #2b2b2b;
-    border-right: 1px solid #2b2b2b;
-}
-
-
-/* ==========================================================
-   КНОПКИ − И +
-   ========================================================== */
-
-.btn-rew,
-.btn-fwd {
-    width: 22px;
-    height: 26px;
-
-    padding: 0;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-
-    font-family: sans-serif;
-    font-size: 14px;
-    font-weight: normal;
-
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition:
-        background 0.12s,
-        color 0.12s,
-        transform 0.08s;
-}
-
-
-/* ==========================================================
-   МИНУС
-   ========================================================== */
-
-.btn-rew {
-    background: #321818;
-
-    color: #999;
-}
-
-.btn-rew:hover {
-    background: #4a1c1c;
-
-    color: #fff;
-}
-
-
-/* ==========================================================
-   ПЛЮС
-   ========================================================== */
-
-.btn-fwd {
-    background: #18321e;
-
-    color: #999;
-}
-
-.btn-fwd:hover {
-    background: #1d4827;
-
-    color: #fff;
-}
-
-
-/* ==========================================================
-   НАЖАТИЕ
-   ========================================================== */
-
-.btn-rew:active,
-.btn-fwd:active {
-    transform: scale(0.92);
+    background: #1e1e1e;
 }
 
 
@@ -772,29 +330,35 @@ button:active {
    ВИДЕОПЛЕЕР
    ========================================================== */
 
+.player-wrapper {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+}
+
+
 .player-box {
     position: relative;
 
     width: 100%;
 
-    min-width: 400px;
-    min-height: 300px;
-
     aspect-ratio: 16 / 9;
 
-    background: #000;
+    min-width: 0;
+    min-height: 0;
 
-    border-radius: 6px;
+    background: #000000;
+
+    border: 1px solid #111111;
+    border-radius: 0;
 
     overflow: hidden;
 
-    visibility: visible !important;
-    opacity: 1 !important;
-
     display: block !important;
 
-    box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.5);
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 
@@ -806,12 +370,12 @@ iframe {
     width: 100% !important;
     height: 100% !important;
 
-    min-width: 400px !important;
-    min-height: 300px !important;
-
-    border: none;
+    min-width: 0 !important;
+    min-height: 0 !important;
 
     display: block !important;
+
+    border: none;
 
     visibility: visible !important;
     opacity: 1 !important;
@@ -826,8 +390,8 @@ iframe {
     width: 100% !important;
     height: 100% !important;
 
-    min-width: 400px !important;
-    min-height: 300px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
 
     display: block !important;
 
@@ -837,96 +401,850 @@ iframe {
 
 
 /* ==========================================================
-   ОБЁРТКА ПЛЕЕРА
+   ПОЛОСА ПЕРЕМОТКИ
+   ----------------------------------------------------------
+   Пока только визуальный макет.
+   Функциональность добавим позже.
    ========================================================== */
 
-.player-wrapper {
+.video-seek-area {
+    display: flex;
+
+    align-items: center;
+
     width: 100%;
+    height: 42px;
+
+    padding: 0 10px;
+
+    background: #1e1e1e;
+
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+    border-bottom: 1px solid #111111;
+
+    gap: 7px;
 }
 
 
 /* ==========================================================
-   ТАЙМЕР
+   КРАЯ ПОЛОСЫ
    ========================================================== */
 
-.high-res-timer {
-    display: table;
+.seek-boundary {
+    flex: 0 0 auto;
 
-    padding: 4px 7px;
+    display: flex;
 
-    margin-bottom: 4px;
+    align-items: center;
+    justify-content: center;
 
-    background: rgba(0, 0, 0, 0.65);
+    color: #cccccc;
 
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 13px;
 
-    border-radius: 3px;
+    line-height: 1;
+}
 
-    color: #00e676;
 
+/* ==========================================================
+   САМА ПОЛОСА
+   ========================================================== */
+
+.seek-bar {
+    position: relative;
+
+    flex: 1 1 auto;
+
+    height: 5px;
+
+    background: #222222;
+
+    border-radius: 0;
+
+    overflow: hidden;
+}
+
+
+/* ==========================================================
+   ПРОГРЕСС
+   ----------------------------------------------------------
+   Пока пустой.
+   ========================================================== */
+
+.seek-progress {
+    width: 0%;
+    height: 100%;
+
+    background: #555555;
+}
+
+
+/* ==========================================================
+   ОСНОВНАЯ СТРОКА:
+   НАЧАЛО / PLAY / КОНЕЦ / КОНЕЦ ЗАБЕГА
+   ========================================================== */
+
+.video-action-row {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 10px;
+
+    width: 100%;
+
+    min-height: 52px;
+
+    padding: 7px 10px;
+
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+    border-bottom: 1px solid #111111;
+
+    background: #1e1e1e;
+}
+
+
+/* ==========================================================
+   НАЧАЛО
+   ========================================================== */
+
+.start-time-display {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    gap: 7px;
+
+    min-width: 0;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   КОНЕЦ
+   ========================================================== */
+
+.end-time-display {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    gap: 7px;
+
+    min-width: 0;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   ПОДПИСИ
+   ========================================================== */
+
+.time-label {
+    font-size: 12px;
+
+    color: #aaaaaa;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================================
+   ЗНАЧЕНИЯ ВРЕМЕНИ
+   ========================================================== */
+
+.time-value {
     font-family: monospace;
+
+    font-size: 12px;
+
+    color: #dddddd;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   КНОПКА УСТАНОВКИ НАЧАЛА
+   ========================================================== */
+
+.btn-set-start-time {
+    width: 28px;
+    height: 28px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 28px;
+
+    background: #333333;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.btn-set-start-time:hover {
+    background: #444444;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   ЛОКАЛЬНЫЕ КНОПКИ
+   ========================================================== */
+
+.local-player-controls {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+}
+
+
+/* ==========================================================
+   КОНЕЦ ЗАБЕГА
+   ========================================================== */
+
+.btn-finish-run {
+    width: auto;
+
+    min-width: 120px;
+
+    height: 32px;
+
+    padding: 0 10px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    white-space: nowrap;
+
+    background: #333333;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.btn-finish-run:hover {
+    background: #4a2222;
+
+    color: #ff7777;
+}
+
+
+/* ==========================================================
+   ТЕКУЩЕЕ ВРЕМЯ / РАЗНИЦА
+   ========================================================== */
+
+.time-info-panel {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 42px;
+
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+    border-bottom: 1px solid #111111;
+
+    background: #1e1e1e;
+}
+
+
+/* ==========================================================
+   ТЕКУЩЕЕ ВРЕМЯ
+   ========================================================== */
+
+.current-time {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    border-right: 1px solid #333333;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   РАЗНИЦА
+   ========================================================== */
+
+.time-difference {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   ТЕКСТ ИНФОРМАЦИИ
+   ========================================================== */
+
+.time-info-panel strong {
+    color: #aaaaaa;
+
+    font-size: 11px;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================================
+   ЗНАЧЕНИЯ
+   ========================================================== */
+
+.current-time span,
+.time-difference span {
+    font-family: monospace;
+
+    color: #dddddd;
+
+    font-size: 12px;
+}
+
+
+/* ==========================================================
+   РЕЗУЛЬТАТ ЗАБЕГА
+   ========================================================== */
+
+.run-result {
+    display: none;
+}
+
+
+/* ==========================================================
+   ПЕРЕМОТКА
+   ========================================================== */
+
+.video-seek-controls {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    gap: 5px;
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 5px 8px;
+
+    overflow: hidden;
+
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+    border-bottom: 1px solid #111111;
+
+    background: #1e1e1e;
+}
+
+
+/* ==========================================================
+   ГРУППА − ЗНАЧЕНИЕ +
+   ========================================================== */
+
+.seek-group {
+    display: flex;
+
+    align-items: center;
+
+    flex: 0 0 auto;
+
+    height: 34px;
+
+    overflow: hidden;
+
+    background: #222222;
+
+    border: 1px solid #111111;
+}
+
+
+/* ==========================================================
+   ЗНАЧЕНИЕ
+   ========================================================== */
+
+.seek-value {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #aaaaaa;
+
+    background: #222222;
+
+    border-left: 1px solid #444444;
+    border-right: 1px solid #444444;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 11px;
+
+    user-select: none;
+}
+
+
+/* ==========================================================
+   − / +
+   ========================================================== */
+
+.btn-rew,
+.btn-fwd {
+    width: 25px;
+    height: 32px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    font-family: Arial, Helvetica, sans-serif;
 
     font-size: 15px;
     font-weight: normal;
 
-    letter-spacing: 0.5px;
-
     line-height: 1;
 
-    pointer-events: none;
-
-    box-sizing: border-box;
-
-    backdrop-filter: blur(2px);
+    cursor: pointer;
 }
 
 
 /* ==========================================================
-   ПОЛОЖЕНИЕ ТАЙМЕРОВ
+   МИНУС
    ========================================================== */
 
-/* Видео 1 — справа */
+.btn-rew {
+    background: #341818;
 
-#timer-display-1 {
-    margin-left: auto;
+    color: #aaaaaa;
 }
 
+.btn-rew:hover {
+    background: #512020;
 
-/* Видео 2 — слева */
-
-#timer-display-2 {
-    margin-right: auto;
+    color: #ffffff;
 }
 
 
 /* ==========================================================
-   АДАПТАЦИЯ ДЛЯ УЗКИХ ЭКРАНОВ
+   ПЛЮС
    ========================================================== */
 
-@media (max-width: 900px) {
+.btn-fwd {
+    background: #193820;
 
-    .inputs-container {
+    color: #aaaaaa;
+}
+
+.btn-fwd:hover {
+    background: #23552d;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ
+   ========================================================== */
+
+.video-info-panel {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-height: 42px;
+
+    padding: 7px 10px;
+
+    border: 1px solid #111111;
+    border-top: none;
+
+    background: #1e1e1e;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   FPS
+   ========================================================== */
+
+.fps-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   FPS INPUT
+   ========================================================== */
+
+.fps-info input {
+    width: 48px;
+    height: 26px;
+
+    padding: 2px 4px;
+
+    text-align: center;
+
+    background: #2a2a2a;
+
+    color: #eeeeee;
+
+    border: 1px solid #111111;
+    border-radius: 0;
+
+    font-family: monospace;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   FPS STATUS
+   ========================================================== */
+
+.fps-status {
+    color: #777777;
+
+    font-size: 10px;
+}
+
+
+/* ==========================================================
+   КНОПКА FPS
+   ========================================================== */
+
+.btn-fps-refresh {
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #333333;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.btn-fps-refresh:hover {
+    background: #444444;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   КАЧЕСТВО
+   ========================================================== */
+
+.quality-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    white-space: nowrap;
+}
+
+
+.quality-value {
+    font-family: monospace;
+
+    color: #999999;
+}
+
+
+/* ==========================================================
+   СЛУЖЕБНЫЕ НАСТРОЙКИ
+   ----------------------------------------------------------
+   Они остаются в DOM для JavaScript,
+   но не отображаются пользователю.
+   ========================================================== */
+
+.video-settings-hidden {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   СЛУЖЕБНЫЕ INPUT
+   ========================================================== */
+
+.time-input-block {
+    display: flex;
+
+    align-items: center;
+
+    gap: 3px;
+}
+
+.time-input-block input {
+    width: 50px;
+    height: 26px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    border: 1px solid #111111;
+}
+
+
+/* ==========================================================
+   СБРОС НАЧАЛЬНОГО ВРЕМЕНИ
+   ========================================================== */
+
+.btn-reset-start-time {
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+
+    background: #333333;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================================
+   СКРЫТЫЕ INPUT FILE
+   ========================================================== */
+
+input[type="file"] {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   СТАРЫЕ / НЕИСПОЛЬЗУЕМЫЕ ЭЛЕМЕНТЫ
+   ========================================================== */
+
+.video-settings-row,
+.layout-selector,
+.btn-toggle-timers {
+    display: none;
+}
+
+
+/* ==========================================================
+   РЕЖИМ LARGE
+   ========================================================== */
+
+.layout-large {
+    flex-direction: row;
+}
+
+
+/* ==========================================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ========================================================== */
+
+@media (max-width: 1100px) {
+
+    body {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .sources-row {
+        gap: 10px;
+    }
+
+    .video-container {
+        gap: 25px;
+    }
+
+    .video-action-row {
+        grid-template-columns: 1fr auto 1fr;
+
+        gap: 6px;
+    }
+
+    .btn-finish-run {
+        grid-column: 1 / -1;
+
+        justify-self: center;
+    }
+
+}
+
+
+/* ==========================================================
+   УЗКИЙ ЭКРАН
+   ========================================================== */
+
+@media (max-width: 800px) {
+
+    .sources-row {
+        grid-template-columns: 1fr;
+
+        gap: 8px;
+    }
+
+    .global-player-controls {
+        order: 2;
+    }
+
+    .video-source:first-child {
+        order: 1;
+    }
+
+    .video-source:last-child {
+        order: 3;
+    }
+
+
+    .video-container {
         flex-direction: column;
 
-        align-items: center;
+        gap: 25px;
     }
 
-    .input-group {
+    .player-column {
         width: 100%;
-        max-width: 600px;
     }
 
-    .layout-side,
-    .layout-large {
-        flex-direction: column;
 
-        align-items: center;
+    .video-action-row {
+        grid-template-columns: 1fr;
+
+        justify-items: center;
+
+        gap: 8px;
+
+        padding: 10px;
     }
 
-    .layout-side .player-column,
-    .layout-large .player-column {
-        width: 100%;
-        max-width: 900px;
+
+    .start-time-display,
+    .end-time-display {
+        justify-content: center;
+    }
+
+
+    .time-info-panel {
+        grid-template-columns: 1fr;
+
+        text-align: center;
+    }
+
+
+    .current-time {
+        justify-content: center;
+
+        border-right: none;
+
+        border-bottom: 1px solid #cccccc;
+    }
+
+
+    .time-difference {
+        justify-content: center;
+    }
+
+
+    .video-seek-controls {
+        overflow-x: auto;
+
+        justify-content: flex-start;
+    }
+
+
+    .video-info-panel {
+        gap: 10px;
+
+        overflow-x: auto;
     }
 
 }
