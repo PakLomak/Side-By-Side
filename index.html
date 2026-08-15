@@ -29,6 +29,94 @@
 
 
     <!-- =====================================================
+         КНОПКА ПОЛНОЭКРАННОГО РЕЖИМА ДВУХ ЗАБЕГОВ
+         ===================================================== -->
+
+    <button
+        id="btn-theater-mode"
+        class="btn-theater-toggle"
+        onclick="toggleTheaterMode()"
+        title="Полноэкранный просмотр двух забегов"
+    >
+        ⛶
+    </button>
+
+
+    <!-- =====================================================
+         ПЛАВАЮЩАЯ ПАНЕЛЬ ПОЛНОЭКРАННОГО РЕЖИМА
+         -----------------------------------------------------
+         Видна только когда включён theater-mode.
+         Таймеры дублируют current-time-1 / current-time-2,
+         кнопки — те же самые общие play/pause/stop/±10с.
+         ===================================================== -->
+
+    <div
+        id="theater-controls"
+        class="theater-controls"
+    >
+
+        <div class="theater-timer">
+            <span id="theater-time-1">
+                0:00:00.000
+            </span>
+        </div>
+
+
+        <div class="theater-buttons">
+
+            <button
+                class="btn-control btn-skip"
+                onclick="syncSeekBySeconds(-10)"
+                title="Назад на 10 секунд"
+            >
+                &lt;
+            </button>
+
+            <button
+                class="btn-control btn-play"
+                onclick="syncPlay()"
+                title="Синхронный старт"
+            >
+                ▶
+            </button>
+
+            <button
+                class="btn-control btn-pause"
+                onclick="syncPause()"
+                title="Пауза"
+            >
+                ❚❚
+            </button>
+
+            <button
+                class="btn-control btn-stop"
+                onclick="syncStop()"
+                title="В начало"
+            >
+                ■
+            </button>
+
+            <button
+                class="btn-control btn-skip"
+                onclick="syncSeekBySeconds(10)"
+                title="Вперёд на 10 секунд"
+            >
+                &gt;
+            </button>
+
+        </div>
+
+
+        <div class="theater-timer">
+            <span id="theater-time-2">
+                0:00:00.000
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
          ОСНОВНОЙ КОНТЕЙНЕР
          ===================================================== -->
 
@@ -231,7 +319,7 @@
                     <div class="start-time-display">
 
                         <span class="time-label">
-                            Начало
+                            Start
                         </span>
 
                         <span
@@ -291,7 +379,7 @@
                     <div class="end-time-display">
 
                         <span class="time-label">
-                            Конец
+                            End
                         </span>
 
                         <span
@@ -307,11 +395,11 @@
                     <!-- КОНЕЦ ЗАБЕГА -->
 
                     <button
-                        class="btn-finish-run"
+                        class="btn-finish-run icon-only"
                         onclick="finishVideo1()"
                         title="Завершить забег"
                     >
-                        🏁 Конец забега
+                        🏁
                     </button>
 
                 </div>
@@ -324,7 +412,7 @@
                     <div class="current-time">
 
                         <strong>
-                            Текущее время
+                            Time
                         </strong>
 
                         <span id="current-time-1">
@@ -337,7 +425,7 @@
                     <div class="time-difference">
 
                         <strong>
-                            Время между началом и концом
+                            Run time
                         </strong>
 
                         <span id="time-difference-1">
@@ -488,6 +576,106 @@
 
                     </div>
 
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo1Seconds(30)"
+                            title="Назад на 30 секунд"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            30s
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo1Seconds(30)"
+                            title="Вперёд на 30 секунд"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo1Seconds(60)"
+                            title="Назад на 1 минуту"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            1m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo1Seconds(60)"
+                            title="Вперёд на 1 минуту"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo1Seconds(120)"
+                            title="Назад на 2 минуты"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            2m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo1Seconds(120)"
+                            title="Вперёд на 2 минуты"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo1Seconds(300)"
+                            title="Назад на 5 минут"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            5m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo1Seconds(300)"
+                            title="Вперёд на 5 минут"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
                 </div>
 
 
@@ -499,7 +687,7 @@
                     <div class="fps-info">
 
                         <span>
-                            Кадры
+                            FPS
                         </span>
 
                         <input
@@ -510,10 +698,6 @@
                             max="1000"
                             step="0.01"
                         >
-
-                        <span>
-                            FPS
-                        </span>
 
                         <span
                             id="fps-status-1"
@@ -536,7 +720,7 @@
                     <div class="quality-info">
 
                         <span>
-                            Качество
+                            Quality
                         </span>
 
                         <span
@@ -545,6 +729,14 @@
                         >
                             —
                         </span>
+
+                        <select
+                            id="quality-select-1"
+                            class="quality-select"
+                            style="display: none;"
+                            onchange="setTwitchQuality(1, this.value)"
+                            title="Качество доступно для переключения только у Twitch"
+                        ></select>
 
                     </div>
 
@@ -664,7 +856,7 @@
                     <div class="start-time-display">
 
                         <span class="time-label">
-                            Начало
+                            Start
                         </span>
 
                         <span
@@ -723,7 +915,7 @@
                     <div class="end-time-display">
 
                         <span class="time-label">
-                            Конец
+                            End
                         </span>
 
                         <span
@@ -739,11 +931,11 @@
                     <!-- КОНЕЦ ЗАБЕГА -->
 
                     <button
-                        class="btn-finish-run"
+                        class="btn-finish-run icon-only"
                         onclick="finishVideo2()"
                         title="Завершить забег"
                     >
-                        🏁 Конец забега
+                        🏁
                     </button>
 
                 </div>
@@ -756,7 +948,7 @@
                     <div class="current-time">
 
                         <strong>
-                            Текущее время
+                            Time
                         </strong>
 
                         <span id="current-time-2">
@@ -769,7 +961,7 @@
                     <div class="time-difference">
 
                         <strong>
-                            Время между началом и концом
+                            Run time
                         </strong>
 
                         <span id="time-difference-2">
@@ -920,6 +1112,106 @@
 
                     </div>
 
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo2Seconds(30)"
+                            title="Назад на 30 секунд"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            30s
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo2Seconds(30)"
+                            title="Вперёд на 30 секунд"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo2Seconds(60)"
+                            title="Назад на 1 минуту"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            1m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo2Seconds(60)"
+                            title="Вперёд на 1 минуту"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo2Seconds(120)"
+                            title="Назад на 2 минуты"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            2m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo2Seconds(120)"
+                            title="Вперёд на 2 минуты"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <div class="seek-group">
+
+                        <button
+                            class="btn-rew"
+                            onclick="rewindVideo2Seconds(300)"
+                            title="Назад на 5 минут"
+                        >
+                            −
+                        </button>
+
+                        <span class="seek-value">
+                            5m
+                        </span>
+
+                        <button
+                            class="btn-fwd"
+                            onclick="forwardVideo2Seconds(300)"
+                            title="Вперёд на 5 минут"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
                 </div>
 
 
@@ -931,7 +1223,7 @@
                     <div class="fps-info">
 
                         <span>
-                            Кадры
+                            FPS
                         </span>
 
                         <input
@@ -942,10 +1234,6 @@
                             max="1000"
                             step="0.01"
                         >
-
-                        <span>
-                            FPS
-                        </span>
 
                         <span
                             id="fps-status-2"
@@ -968,7 +1256,7 @@
                     <div class="quality-info">
 
                         <span>
-                            Качество
+                            Quality
                         </span>
 
                         <span
@@ -977,6 +1265,14 @@
                         >
                             —
                         </span>
+
+                        <select
+                            id="quality-select-2"
+                            class="quality-select"
+                            style="display: none;"
+                            onchange="setTwitchQuality(2, this.value)"
+                            title="Качество доступно для переключения только у Twitch"
+                        ></select>
 
                     </div>
 

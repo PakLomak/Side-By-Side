@@ -462,21 +462,54 @@ iframe {
 
     border-radius: 0;
 
-    overflow: hidden;
+    /* overflow остаётся видимым, чтобы кружок-ползунок
+       на конце прогресса не обрезался краями полосы */
+    overflow: visible;
 }
 
 
 /* ==========================================================
    ПРОГРЕСС
-   ----------------------------------------------------------
-   Пока пустой.
    ========================================================== */
 
 .seek-progress {
+    position: relative;
+
     width: 0%;
     height: 100%;
 
     background: #555555;
+}
+
+
+/* ==========================================================
+   ПОЛЗУНОК НА КОНЦЕ ПРОГРЕССА
+   ----------------------------------------------------------
+   Круглый и заметно крупнее самой полосы (5px),
+   чтобы текущая позиция читалась с первого взгляда.
+   ========================================================== */
+
+.seek-progress::after {
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+    right: 0;
+
+    width: 14px;
+    height: 14px;
+
+    background: #e8e8e8;
+
+    border: 2px solid #141414;
+    border-radius: 50%;
+
+    transform: translate(50%, -50%);
+
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+
+    pointer-events: none;
 }
 
 
@@ -551,7 +584,7 @@ iframe {
    ========================================================== */
 
 .time-label {
-    font-size: 12px;
+    font-size: 15px;
 
     color: #aaaaaa;
 
@@ -566,7 +599,7 @@ iframe {
 .time-value {
     font-family: monospace;
 
-    font-size: 12px;
+    font-size: 15px;
 
     color: #dddddd;
 
@@ -667,6 +700,29 @@ iframe {
 
 
 /* ==========================================================
+   КОНЕЦ ЗАБЕГА — ТОЛЬКО ЗНАЧОК
+   ----------------------------------------------------------
+   Компактная квадратная кнопка без текста,
+   придвинута ближе к таймеру "End".
+   ========================================================== */
+
+.btn-finish-run.icon-only {
+    min-width: 0;
+
+    width: 32px;
+    height: 32px;
+
+    padding: 0;
+
+    font-size: 15px;
+
+    /* сокращаем визуальный разрыв с блоком End,
+       не трогая общий gap строки */
+    margin-left: -6px;
+}
+
+
+/* ==========================================================
    ТЕКУЩЕЕ ВРЕМЯ / РАЗНИЦА
    ========================================================== */
 
@@ -736,7 +792,7 @@ iframe {
 .time-info-panel strong {
     color: #aaaaaa;
 
-    font-size: 11px;
+    font-size: 14px;
 
     font-weight: bold;
 }
@@ -752,7 +808,7 @@ iframe {
 
     color: #dddddd;
 
-    font-size: 12px;
+    font-size: 15px;
 }
 
 
@@ -774,9 +830,9 @@ iframe {
 
     align-items: center;
 
-    justify-content: flex-start;
+    justify-content: stretch;
 
-    gap: 5px;
+    gap: 6px;
 
     width: 100%;
 
@@ -796,6 +852,9 @@ iframe {
 
 /* ==========================================================
    ГРУППА − ЗНАЧЕНИЕ +
+   ----------------------------------------------------------
+   Растягиваются на всю ширину строки и делят
+   доступное пространство поровну между собой.
    ========================================================== */
 
 .seek-group {
@@ -803,7 +862,9 @@ iframe {
 
     align-items: center;
 
-    flex: 0 0 auto;
+    flex: 1 1 0;
+
+    min-width: 0;
 
     height: 34px;
 
@@ -820,7 +881,10 @@ iframe {
    ========================================================== */
 
 .seek-value {
-    width: 32px;
+    flex: 1 1 auto;
+
+    min-width: 0;
+
     height: 32px;
 
     display: flex;
@@ -837,7 +901,7 @@ iframe {
 
     font-family: Arial, Helvetica, sans-serif;
 
-    font-size: 11px;
+    font-size: 13px;
 
     user-select: none;
 }
@@ -849,7 +913,10 @@ iframe {
 
 .btn-rew,
 .btn-fwd {
-    width: 25px;
+    flex: 1 1 auto;
+
+    min-width: 0;
+
     height: 32px;
 
     padding: 0;
@@ -927,7 +994,7 @@ iframe {
 
     background: #1e1e1e;
 
-    font-size: 11px;
+    font-size: 14px;
 }
 
 
@@ -951,8 +1018,8 @@ iframe {
    ========================================================== */
 
 .fps-info input {
-    width: 48px;
-    height: 26px;
+    width: 52px;
+    height: 28px;
 
     padding: 2px 4px;
 
@@ -967,7 +1034,7 @@ iframe {
 
     font-family: monospace;
 
-    font-size: 11px;
+    font-size: 13px;
 }
 
 
@@ -978,7 +1045,7 @@ iframe {
 .fps-status {
     color: #777777;
 
-    font-size: 10px;
+    font-size: 12px;
 }
 
 
@@ -1034,7 +1101,36 @@ iframe {
 .quality-value {
     font-family: monospace;
 
+    font-size: 13px;
+
     color: #999999;
+}
+
+
+/* ==========================================================
+   ВЫБОР КАЧЕСТВА (TWITCH)
+   ----------------------------------------------------------
+   Появляется вместо quality-value, когда доступен
+   реальный список качеств (сейчас — только у Twitch).
+   ========================================================== */
+
+.quality-select {
+    height: 26px;
+
+    padding: 2px 4px;
+
+    background: #2a2a2a;
+
+    color: #eeeeee;
+
+    border: 1px solid #111111;
+    border-radius: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 12px;
+
+    cursor: pointer;
 }
 
 
@@ -1127,6 +1223,179 @@ input[type="file"] {
 
 
 /* ==========================================================
+   КНОПКА ПОЛНОЭКРАННОГО РЕЖИМА
+   ========================================================== */
+
+.btn-theater-toggle {
+    position: fixed;
+
+    top: 14px;
+    right: 14px;
+
+    z-index: 2000;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #262626;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 3px;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.btn-theater-toggle:hover {
+    background: #3a3a3a;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   ПЛАВАЮЩАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (THEATER MODE)
+   ----------------------------------------------------------
+   По умолчанию скрыта, появляется только вместе
+   с классом body.theater-mode.
+   ========================================================== */
+
+.theater-controls {
+    display: none;
+
+    align-items: center;
+
+    gap: 18px;
+
+    position: fixed;
+
+    left: 50%;
+    bottom: 22px;
+
+    transform: translateX(-50%);
+
+    z-index: 1900;
+
+    padding: 8px 18px;
+
+    background: rgba(20, 20, 20, 0.88);
+
+    border: 1px solid #111111;
+    border-radius: 4px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.theater-timer {
+    min-width: 120px;
+
+    text-align: center;
+
+    font-family: monospace;
+
+    font-size: 18px;
+
+    color: #eeeeee;
+
+    white-space: nowrap;
+}
+
+.theater-buttons {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+
+/* ==========================================================
+   ВКЛЮЧЁННЫЙ ПОЛНОЭКРАННЫЙ РЕЖИМ
+   ----------------------------------------------------------
+   Оба плеера растягиваются на весь экран,
+   вся остальная панель управления скрывается,
+   остаются только таймеры и плавающая панель.
+   ========================================================== */
+
+body.theater-mode {
+    overflow: hidden;
+}
+
+body.theater-mode .sources-row {
+    display: none;
+}
+
+body.theater-mode .theater-controls {
+    display: flex;
+}
+
+body.theater-mode #video-grid {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    /* Twitch-плееры не запускаются корректно, если между
+       ними меньше 20px — оставляем реальный зазор. */
+    gap: 20px;
+
+    padding: 0 20px;
+
+    background: #000000;
+
+    z-index: 1000;
+}
+
+body.theater-mode .player-column {
+    height: auto;
+
+    background: #000000;
+}
+
+body.theater-mode .player-wrapper {
+    height: auto;
+}
+
+body.theater-mode .player-box {
+    aspect-ratio: 16 / 9;
+
+    height: auto;
+
+    max-height: calc(100vh - 100px);
+}
+
+body.theater-mode .video-seek-area,
+body.theater-mode .video-action-row,
+body.theater-mode .time-info-panel,
+body.theater-mode .video-seek-controls,
+body.theater-mode .video-info-panel {
+    display: none;
+}
+
+
+/* ==========================================================
    МОБИЛЬНАЯ АДАПТАЦИЯ
    ========================================================== */
 
@@ -1155,6 +1424,10 @@ input[type="file"] {
         grid-column: 1 / -1;
 
         justify-self: center;
+    }
+
+    .btn-finish-run.icon-only {
+        margin-left: 0;
     }
 
 }
@@ -1240,11 +1513,73 @@ input[type="file"] {
         justify-content: flex-start;
     }
 
+    /* На узких экранах 9 групп не сжимаем в кашу —
+       возвращаем им компактный фиксированный размер
+       и позволяем строке скроллиться по горизонтали. */
+    .seek-group {
+        flex: 0 0 auto;
+    }
+
+    .seek-value {
+        flex: 0 0 32px;
+
+        width: 32px;
+    }
+
+    .btn-rew,
+    .btn-fwd {
+        flex: 0 0 25px;
+
+        width: 25px;
+    }
+
 
     .video-info-panel {
         gap: 10px;
 
         overflow-x: auto;
+    }
+
+
+    /* Полноэкранный режим на узких экранах:
+       видео друг под другом, каждое по половине высоты,
+       плавающая панель — компактнее. */
+
+    body.theater-mode #video-grid {
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 20px;
+
+        padding: 20px;
+    }
+
+    body.theater-mode .player-column {
+        flex: 0 0 auto;
+
+        width: 100%;
+
+        height: auto;
+    }
+
+    body.theater-mode .player-box {
+        width: 100%;
+
+        max-height: none;
+    }
+
+    .theater-controls {
+        gap: 10px;
+
+        padding: 6px 10px;
+    }
+
+    .theater-timer {
+        min-width: 0;
+
+        font-size: 14px;
     }
 
 }

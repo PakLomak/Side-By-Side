@@ -361,6 +361,36 @@ function updateTimerDisplays() {
 
     }
 
+    // Дублируем таймеры на плавающую панель
+    // полноэкранного режима (theater-mode).
+    const theaterTimer1 =
+        document.getElementById(
+            'theater-time-1'
+        );
+
+    const theaterTimer2 =
+        document.getElementById(
+            'theater-time-2'
+        );
+
+    if (theaterTimer1) {
+
+        theaterTimer1.innerText =
+            formatHighResTime(
+                videoTime1
+            );
+
+    }
+
+    if (theaterTimer2) {
+
+        theaterTimer2.innerText =
+            formatHighResTime(
+                videoTime2
+            );
+
+    }
+
     updateSeekBars();
 
 }
@@ -739,6 +769,283 @@ function updateSeekBars() {
 
     updateSeekBar(1);
     updateSeekBar(2);
+
+}
+
+// ============================================================
+// КАЧЕСТВО ВИДЕО
+// ------------------------------------------------------------
+// Реальное переключение качества поддерживает только
+// Twitch.Player (getQualities / setQuality / getQuality).
+//
+// У YouTube в текущей iframe API официально отключены
+// getPlaybackQuality / setPlaybackQuality / getAvailableQualityLevels —
+// вызовы ничего не делают, поэтому там мы просто показываем,
+// что качество управляется автоматически самим YouTube.
+//
+// Для локального файла отдельных уровней качества нет —
+// показываем фактическое разрешение самого видео.
+// ============================================================
+
+function getQualityDisplayElement(playerNum) {
+
+    return document.getElementById(
+        'quality-display-' + playerNum
+    );
+
+}
+
+function getQualitySelectElement(playerNum) {
+
+    return document.getElementById(
+        'quality-select-' + playerNum
+    );
+
+}
+
+// ============================================================
+// ПОКАЗАТЬ ТЕКСТОВОЕ ЗНАЧЕНИЕ КАЧЕСТВА
+// ============================================================
+
+function updateQualityDisplay(
+    playerNum,
+    text,
+    tooltip
+) {
+
+    const span =
+        getQualityDisplayElement(playerNum);
+
+    const select =
+        getQualitySelectElement(playerNum);
+
+    if (span) {
+
+        span.textContent =
+            text;
+
+        span.title =
+            tooltip || '';
+
+        span.style.display =
+            '';
+
+    }
+
+    if (select) {
+
+        select.style.display =
+            'none';
+
+    }
+
+}
+
+// ============================================================
+// СБРОС ИНДИКАТОРА КАЧЕСТВА
+// ============================================================
+
+function resetQualityUI(playerNum) {
+
+    updateQualityDisplay(
+        playerNum,
+        '—',
+        ''
+    );
+
+    const select =
+        getQualitySelectElement(playerNum);
+
+    if (select) {
+
+        select.innerHTML =
+            '';
+
+    }
+
+}
+
+// ============================================================
+// СПИСОК КАЧЕСТВ TWITCH
+// ============================================================
+
+function populateTwitchQualitySelect(
+    playerNum,
+    twitchPlayer,
+    attempt = 0
+) {
+
+    const select =
+        getQualitySelectElement(playerNum);
+
+    const span =
+        getQualityDisplayElement(playerNum);
+
+    if (!select) {
+        return;
+    }
+
+    let qualities = [];
+
+    try {
+
+        qualities =
+            twitchPlayer.getQualities() || [];
+
+    }
+
+    catch (error) {
+
+        console.log(
+            'Не удалось получить список качеств Twitch:',
+            error
+        );
+
+    }
+
+    // Сразу после READY Twitch иногда ещё не отдаёт список
+    // качеств — пробуем ещё раз чуть позже, но не бесконечно.
+    if (
+        !qualities.length &&
+        attempt < 5
+    ) {
+
+        setTimeout(
+            function() {
+
+                const current =
+                    players[playerNum];
+
+                if (
+                    current &&
+                    current.player === twitchPlayer
+                ) {
+
+                    populateTwitchQualitySelect(
+                        playerNum,
+                        twitchPlayer,
+                        attempt + 1
+                    );
+
+                }
+
+            },
+            600
+        );
+
+        return;
+
+    }
+
+    if (!qualities.length) {
+
+        updateQualityDisplay(
+            playerNum,
+            'Auto (Twitch)',
+            ''
+        );
+
+        return;
+
+    }
+
+    select.innerHTML =
+        '';
+
+    qualities.forEach(
+        function(quality) {
+
+            const option =
+                document.createElement('option');
+
+            option.value =
+                quality.group;
+
+            option.textContent =
+                quality.name;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+    let current = '';
+
+    try {
+
+        current =
+            twitchPlayer.getQuality();
+
+    }
+
+    catch (error) {
+
+        console.log(
+            'Не удалось получить текущее качество Twitch:',
+            error
+        );
+
+    }
+
+    if (current) {
+
+        select.value =
+            current;
+
+    }
+
+    select.style.display =
+        '';
+
+    if (span) {
+
+        span.style.display =
+            'none';
+
+    }
+
+}
+
+// ============================================================
+// СМЕНА КАЧЕСТВА TWITCH ПОЛЬЗОВАТЕЛЕМ
+// ============================================================
+
+function setTwitchQuality(
+    playerNum,
+    group
+) {
+
+    const info =
+        players[playerNum];
+
+    if (
+        !info ||
+        !info.player ||
+        typeof info.player.setQuality !== 'function'
+    ) {
+
+        return;
+
+    }
+
+    try {
+
+        info.player.setQuality(
+            group
+        );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            'Не удалось изменить качество Twitch:',
+            error
+        );
+
+    }
 
 }
 
@@ -1778,6 +2085,10 @@ function destroyPlayer(playerNum) {
 
     };
 
+    resetQualityUI(
+        playerNum
+    );
+
     // После смены плеера повторно подключаем мышь
     // к новой .seek-bar, если она уже существует.
     setTimeout(
@@ -1962,6 +2273,21 @@ function createLocalVideoPlayer(
                 playerNum,
                 video
             );
+
+            // У локального файла нет уровней качества —
+            // показываем реальное разрешение видео.
+            if (
+                video.videoWidth &&
+                video.videoHeight
+            ) {
+
+                updateQualityDisplay(
+                    playerNum,
+                    video.videoWidth + '×' + video.videoHeight,
+                    'Разрешение локального файла'
+                );
+
+            }
 
         }
     );
@@ -2161,6 +2487,16 @@ function createYouTubePlayer(
 
                     setupSeekMouseControls();
                     updateSeekBars();
+
+                    // YouTube официально отключил ручное
+                    // переключение качества в iframe API —
+                    // setPlaybackQuality больше ни на что не влияет,
+                    // качество всегда подбирается автоматически.
+                    updateQualityDisplay(
+                        playerNum,
+                        'Auto (YouTube)',
+                        'YouTube больше не позволяет менять качество через встроенный плеер — оно выбирается автоматически'
+                    );
 
                 },
                 700
@@ -2383,6 +2719,11 @@ function createTwitchPlayer(
 
             setupSeekMouseControls();
             updateSeekBars();
+
+            populateTwitchQualitySelect(
+                playerNum,
+                twitchPlayer
+            );
 
             if (
                 info.pendingPlay
@@ -4354,6 +4695,144 @@ window.forwardVideo2Seconds =
         );
 
     };
+
+// ============================================================
+// ПОЛНОЭКРАННЫЙ РЕЖИМ ДВУХ ЗАБЕГОВ (THEATER MODE)
+// ------------------------------------------------------------
+// Кнопка в углу переключает body.theater-mode, который
+// через CSS растягивает оба плеера на весь экран и прячет
+// всё лишнее, оставляя только таймеры и плавающую панель
+// с play/pause/stop/±10с (те же самые общие sync-функции).
+//
+// Дополнительно пробуем включить настоящий Fullscreen API —
+// если браузер/страница это запрещает (например, из-за
+// Permissions Policy), просто остаёмся в CSS-полноэкранном
+// режиме, который работает всегда.
+// ============================================================
+
+let theaterModeActive = false;
+
+function setTheaterToggleButton(active) {
+
+    const btn =
+        document.getElementById(
+            'btn-theater-mode'
+        );
+
+    if (!btn) {
+        return;
+    }
+
+    btn.textContent =
+        active ? '✕' : '⛶';
+
+    btn.title =
+        active
+            ? 'Выйти из полноэкранного режима'
+            : 'Полноэкранный просмотр двух забегов';
+
+}
+
+window.toggleTheaterMode =
+    function() {
+
+        theaterModeActive =
+            !theaterModeActive;
+
+        document.body.classList.toggle(
+            'theater-mode',
+            theaterModeActive
+        );
+
+        setTheaterToggleButton(
+            theaterModeActive
+        );
+
+        // Разворачиваем в fullscreen весь документ (<html>),
+        // а не только .compare-layout — иначе браузер прячет
+        // кнопку и плавающую панель, так как они лежат
+        // вне фуллскрин-элемента и его поддерева.
+        const fullscreenTarget =
+            document.documentElement;
+
+        if (theaterModeActive) {
+
+            if (
+                fullscreenTarget &&
+                fullscreenTarget.requestFullscreen
+            ) {
+
+                fullscreenTarget
+                    .requestFullscreen()
+                    .catch(
+                        function(error) {
+
+                            console.log(
+                                'Полноэкранный режим (API) недоступен, остаёмся в CSS-режиме:',
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+
+        }
+
+        else {
+
+            if (
+                document.fullscreenElement &&
+                document.exitFullscreen
+            ) {
+
+                document
+                    .exitFullscreen()
+                    .catch(
+                        function(error) {
+
+                            console.log(
+                                'Не удалось выйти из полноэкранного режима:',
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+
+        }
+
+        updateTimerDisplays();
+
+    };
+
+// Если пользователь вышел из настоящего fullscreen
+// клавишей Esc, синхронизируем состояние кнопки и режима.
+document.addEventListener(
+    'fullscreenchange',
+    function() {
+
+        if (
+            !document.fullscreenElement &&
+            theaterModeActive
+        ) {
+
+            theaterModeActive =
+                false;
+
+            document.body.classList.remove(
+                'theater-mode'
+            );
+
+            setTheaterToggleButton(
+                false
+            );
+
+        }
+
+    }
+);
 
 // ============================================================
 // ПОКАЗ / СКРЫТИЕ ТАЙМЕРОВ
