@@ -131,6 +131,115 @@ function formatHighResTime(totalSeconds) {
 }
 
 // ============================================================
+// ФОРМАТ ВРЕМЕНИ ДЛЯ MOD NOTE
+// ------------------------------------------------------------
+// 19.983
+// 5:12.583
+// 65:12.583
+// ============================================================
+
+function formatModNoteTime(totalSeconds) {
+
+    if (!Number.isFinite(totalSeconds)) {
+        totalSeconds = 0;
+    }
+
+    totalSeconds =
+        Math.max(
+            0,
+            totalSeconds
+        );
+
+
+    const minutes =
+        Math.floor(
+            totalSeconds / 60
+        );
+
+
+    const seconds =
+        totalSeconds % 60;
+
+
+    if (minutes === 0) {
+
+        return seconds
+            .toFixed(3);
+
+    }
+
+
+    return (
+        minutes +
+        ":" +
+        String(
+            Math.floor(seconds)
+        ).padStart(2, "0") +
+        "." +
+        String(
+            Math.round(
+                (seconds % 1) * 1000
+            )
+        ).padStart(3, "0")
+    );
+}
+
+// ============================================================
+// ОБНОВЛЕНИЕ MOD NOTE
+// ============================================================
+
+function updateModNote(videoNumber) {
+
+    const element =
+        document.getElementById(
+            "mod-note-" + videoNumber
+        );
+
+    if (!element) {
+        return;
+    }
+
+
+    const startTime =
+        getStartTime(videoNumber);
+
+
+    const endTime =
+        videoNumber === 1
+            ? finishTime1
+            : finishTime2;
+
+
+    const runTime =
+        videoNumber === 1
+            ? resultTime1
+            : resultTime2;
+
+
+    const fps =
+        getFPS(videoNumber);
+
+
+    element.textContent =
+        "Mod Note: Start Time: " +
+        formatModNoteTime(startTime) +
+        ", End Time: " +
+        formatModNoteTime(
+            Number.isFinite(endTime)
+                ? endTime
+                : 0
+        ) +
+        ", Frame Rate: " +
+        fps +
+        ", Time: " +
+        formatModNoteTime(
+            Number.isFinite(runTime)
+                ? runTime
+                : 0
+        );
+}
+
+// ============================================================
 // ПОЛУЧЕНИЕ ТЕКУЩЕГО ВРЕМЕНИ
 // ============================================================
 
@@ -451,6 +560,7 @@ function updateStartTimeDisplay(videoNumber) {
         formatHighResTime(
             getStartTime(videoNumber)
         );
+        updateModNote(videoNumber);
 
 }
 
@@ -555,6 +665,7 @@ function setFinishTime(videoNumber) {
         videoNumber,
         elapsedTime
     );
+    updateModNote(videoNumber);
 
     console.log(
         'Видео ' +
@@ -869,6 +980,68 @@ function resetQualityUI(playerNum) {
 // СПИСОК КАЧЕСТВ TWITCH
 // ============================================================
 
+// ============================================================
+// ОПРЕДЕЛЕНИЕ FPS ПО ВЫБРАННОМУ КАЧЕСТВУ TWITCH
+// ------------------------------------------------------------
+// Каждый объект качества, который отдаёт getQualities(),
+// содержит поле framerate (например, 1080p60 → 60,
+// 720p30 → 30). Это официальные данные Twitch о самом
+// потоке — используем их, чтобы не выставлять FPS вручную.
+// ============================================================
+
+function applyTwitchFramerateForGroup(
+    playerNum,
+    qualities,
+    group
+) {
+
+    if (
+        !Array.isArray(qualities) ||
+        !qualities.length
+    ) {
+
+        return;
+
+    }
+
+    let match =
+        qualities.find(
+            function(quality) {
+
+                return quality.group === group;
+
+            }
+        );
+
+    if (!match) {
+
+        match =
+            qualities.find(
+                function(quality) {
+
+                    return quality.isDefault;
+
+                }
+            );
+
+    }
+
+    if (
+        match &&
+        Number.isFinite(match.framerate) &&
+        match.framerate > 0
+    ) {
+
+        setPlayerFPS(
+            playerNum,
+            match.framerate,
+            true
+        );
+
+    }
+
+}
+
 function populateTwitchQualitySelect(
     playerNum,
     twitchPlayer,
@@ -949,6 +1122,18 @@ function populateTwitchQualitySelect(
 
     }
 
+    const playerInfo =
+        players[playerNum];
+
+    if (playerInfo) {
+
+        // Сохраняем список — понадобится, когда пользователь
+        // сам переключит качество в setTwitchQuality().
+        playerInfo.twitchQualities =
+            qualities;
+
+    }
+
     select.innerHTML =
         '';
 
@@ -1006,7 +1191,15 @@ function populateTwitchQualitySelect(
 
     }
 
+    applyTwitchFramerateForGroup(
+        playerNum,
+        qualities,
+        current
+    );
+
 }
+
+
 
 // ============================================================
 // СМЕНА КАЧЕСТВА TWITCH ПОЛЬЗОВАТЕЛЕМ
@@ -1046,6 +1239,14 @@ function setTwitchQuality(
         );
 
     }
+
+    // У выбранного вручную качества тоже есть свой framerate —
+    // подтягиваем FPS вместе со сменой качества.
+    applyTwitchFramerateForGroup(
+        playerNum,
+        info.twitchQualities,
+        group
+    );
 
 }
 
@@ -2449,6 +2650,16 @@ function createYouTubePlayer(
 
     };
 
+    // YouTube официально отключил getPlaybackQuality /
+    // setPlaybackQuality / getAvailableQualityLevels — эти
+    // вызовы больше ничего не делают. Честно показываем,
+    // что качеством управляет сам YouTube, без селектора.
+    updateQualityDisplay(
+        playerNum,
+        'Auto (YouTube)',
+        'YouTube больше не позволяет читать или менять качество через API — регулируется самим плеером'
+    );
+
     iframe.onload =
         function() {
 
@@ -2635,6 +2846,9 @@ function createTwitchPlayer(
 
         twitchReady:
             false,
+
+        twitchQualities:
+            [],
 
         pendingPlay:
             false,
@@ -4807,6 +5021,101 @@ window.toggleTheaterMode =
 
     };
 
+// ============================================================
+// ПЕРЕКЛЮЧЕНИЕ ВИДА: ОБА ВИДЕО / ТОЛЬКО ОДНО
+// ------------------------------------------------------------
+// Кнопка в левом верхнем углу циклически переключает:
+// оба видео -> только Видео 1 -> только Видео 2 -> оба видео.
+// Удобно, когда нужно смотреть и считать только один забег.
+// Работает и в обычном режиме, и в theater-mode.
+// ============================================================
+
+let singleViewState = 0; // 0 = оба видео, 1 = только Видео 1, 2 = только Видео 2
+
+function setViewToggleButton() {
+
+    const btn =
+        document.getElementById(
+            'btn-view-toggle'
+        );
+
+    if (!btn) {
+        return;
+    }
+
+    if (singleViewState === 0) {
+
+        btn.textContent = '1';
+
+        btn.title =
+            'Показать только Видео 1';
+
+    }
+
+    else if (singleViewState === 1) {
+
+        btn.textContent = '2';
+
+        btn.title =
+            'Показать только Видео 2';
+
+    }
+
+    else {
+
+        btn.textContent = '⊞';
+
+        btn.title =
+            'Показать оба видео';
+
+    }
+
+}
+
+window.toggleSingleView =
+    function() {
+
+        singleViewState =
+            (singleViewState + 1) % 3;
+
+        const grid =
+            document.getElementById(
+                'video-grid'
+            );
+
+        const column1 =
+            document.querySelector(
+                '.player-column-1'
+            );
+
+        const column2 =
+            document.querySelector(
+                '.player-column-2'
+            );
+
+        if (!grid || !column1 || !column2) {
+            return;
+        }
+
+        grid.classList.toggle(
+            'single-view',
+            singleViewState !== 0
+        );
+
+        column1.classList.toggle(
+            'active-single',
+            singleViewState === 1
+        );
+
+        column2.classList.toggle(
+            'active-single',
+            singleViewState === 2
+        );
+
+        setViewToggleButton();
+
+    };
+
 // Если пользователь вышел из настоящего fullscreen
 // клавишей Esc, синхронизируем состояние кнопки и режима.
 document.addEventListener(
@@ -5056,12 +5365,98 @@ function initializeSeekBars() {
 }
 
 // ============================================================
+// КОПИРОВАНИЕ MOD NOTE
+// ============================================================
+
+async function copyModNote(videoNumber) {
+
+    const element =
+        document.getElementById(
+            "mod-note-" + videoNumber
+        );
+
+    if (!element) {
+        return;
+    }
+
+
+    const text =
+        element.textContent;
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+    }
+
+    catch (error) {
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value =
+            text;
+
+        document.body.appendChild(
+            textarea
+        );
+
+        textarea.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        textarea.remove();
+
+    }
+
+
+    const panel =
+        element.closest(
+            ".mod-note-panel"
+        );
+
+
+    const button =
+        panel
+            ? panel.querySelector(
+                ".btn-copy-mod-note"
+            )
+            : null;
+
+
+    if (button) {
+
+        button.textContent =
+            "Copied";
+
+        setTimeout(
+            () => {
+
+                button.textContent =
+                    "Copy";
+
+            },
+            1000
+        );
+
+    }
+
+}
+
+// ============================================================
 // ПЕРВОНАЧАЛЬНОЕ ОБНОВЛЕНИЕ
 // ============================================================
 
 setupTimeInputLimits();
 
 initializeSeekBars();
+
+setViewToggleButton();
 
 updateTimerDisplays();
 

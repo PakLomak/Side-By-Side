@@ -43,6 +43,20 @@
 
 
     <!-- =====================================================
+         КНОПКА ПЕРЕКЛЮЧЕНИЯ ВИДА (ОДНО / ДВА ВИДЕО)
+         ===================================================== -->
+
+    <button
+        id="btn-view-toggle"
+        class="btn-view-toggle"
+        onclick="toggleSingleView()"
+        title="Показать только Видео 1"
+    >
+        1
+    </button>
+
+
+    <!-- =====================================================
          ПЛАВАЮЩАЯ ПАНЕЛЬ ПОЛНОЭКРАННОГО РЕЖИМА
          -----------------------------------------------------
          Видна только когда включён theater-mode.
@@ -275,7 +289,7 @@
                  VIDEO 1
                  ================================================= -->
 
-            <div class="player-column">
+            <div class="player-column player-column-1">
 
 
                 <!-- ================= VIDEO ================= -->
@@ -742,6 +756,27 @@
 
                 </div>
 
+                <!-- ================= MOD NOTE ================= -->
+
+<div class="mod-note-panel">
+
+    <span
+        id="mod-note-1"
+        class="mod-note-text"
+    >
+        Mod Note: Start Time: 0.000, End Time: 0.000, Frame Rate: 60, Time: 0.000
+    </span>
+
+    <button
+        class="btn-copy-mod-note"
+        onclick="copyModNote(1)"
+        title="Копировать Mod Note"
+    >
+        Copy
+    </button>
+
+</div>
+
 
                 <!-- ================= СЛУЖЕБНЫЕ НАСТРОЙКИ ================= -->
 
@@ -812,7 +847,7 @@
                  VIDEO 2
                  ================================================= -->
 
-            <div class="player-column">
+            <div class="player-column player-column-2">
 
 
                 <!-- ================= VIDEO ================= -->
@@ -1278,6 +1313,26 @@
 
                 </div>
 
+                <!-- ================= MOD NOTE ================= -->
+
+<div class="mod-note-panel">
+
+    <span
+        id="mod-note-2"
+        class="mod-note-text"
+    >
+        Mod Note: Start Time: 0.000, End Time: 0.000, Frame Rate: 60, Time: 0.000
+    </span>
+
+    <button
+        class="btn-copy-mod-note"
+        onclick="copyModNote(2)"
+        title="Копировать Mod Note"
+    >
+        Copy
+    </button>
+
+</div>
 
                 <!-- ================= СЛУЖЕБНЫЕ НАСТРОЙКИ ================= -->
 

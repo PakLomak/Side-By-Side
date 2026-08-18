@@ -997,6 +997,92 @@ iframe {
     font-size: 14px;
 }
 
+/* ==========================================================
+   MOD NOTE
+   ========================================================== */
+
+.mod-note-panel {
+    display: flex;
+
+    align-items: center;
+
+    width: 100%;
+    min-width: 0;
+
+    min-height: 36px;
+
+    padding: 5px 8px;
+
+    gap: 8px;
+
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+    border-bottom: 1px solid #111111;
+
+    background: #1e1e1e;
+}
+
+
+/* ==========================================================
+   ТЕКСТ MOD NOTE
+   ========================================================== */
+
+.mod-note-text {
+    flex: 1 1 auto;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    font-family: monospace;
+
+    font-size: 12px;
+
+    color: #999999;
+
+    user-select: text;
+}
+
+
+/* ==========================================================
+   КНОПКА КОПИРОВАНИЯ MOD NOTE
+   ========================================================== */
+
+.btn-copy-mod-note {
+    flex: 0 0 auto;
+
+    height: 26px;
+
+    padding: 0 9px;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    background: #333333;
+    color: #cccccc;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+
+.btn-copy-mod-note:hover {
+    background: #444444;
+
+    color: #ffffff;
+}
+
+
+.btn-copy-mod-note:active {
+    background: #222222;
+}
 
 /* ==========================================================
    FPS
@@ -1266,6 +1352,50 @@ input[type="file"] {
 
 
 /* ==========================================================
+   КНОПКА ПЕРЕКЛЮЧЕНИЯ ВИДА (ОДНО / ДВА ВИДЕО)
+   ========================================================== */
+
+.btn-view-toggle {
+    position: fixed;
+
+    top: 14px;
+    left: 14px;
+
+    z-index: 2000;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #262626;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 3px;
+
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+
+    cursor: pointer;
+
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.btn-view-toggle:hover {
+    background: #3a3a3a;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
    ПЛАВАЮЩАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (THEATER MODE)
    ----------------------------------------------------------
    По умолчанию скрыта, появляется только вместе
@@ -1383,15 +1513,59 @@ body.theater-mode .player-box {
 
     height: auto;
 
-    max-height: calc(100vh - 100px);
+    max-height: calc(90vh - 100px);
 }
 
 body.theater-mode .video-seek-area,
 body.theater-mode .video-action-row,
 body.theater-mode .time-info-panel,
 body.theater-mode .video-seek-controls,
-body.theater-mode .video-info-panel {
+body.theater-mode .video-info-panel,
+body.theater-mode .mod-note-panel {
     display: none;
+}
+
+
+/* ==========================================================
+   РЕЖИМ ОДНОГО ВИДЕО
+   ----------------------------------------------------------
+   Позволяет показать только один из двух плееров —
+   удобно для подсчёта кадров/времени по одному забегу.
+   Работает как в обычном режиме, так и в theater-mode.
+   ========================================================== */
+
+#video-grid.single-view .player-column {
+    display: none;
+}
+
+#video-grid.single-view .player-column.active-single {
+    display: flex;
+
+    /* .player-column использует "flex: 1 1 0" — при
+       flex-basis: 0 браузер игнорирует свойство width
+       и растягивает единственную видимую колонку на всю
+       ширину контейнера. Обнуляем flex-grow и возвращаем
+       flex-basis: auto, чтобы явная ширина снова работала. */
+    flex: 0 0 auto;
+
+    width: calc((100% - 25px) / 2);
+
+    margin: 0 auto;
+}
+
+/* В обычном режиме (не театр) одно видео сохраняет
+   тот же размер, что и в виде с двумя видео — только
+   центрируется по ширине, а не растягивается на весь экран. */
+
+/* В театральном режиме одно видео по-прежнему растягивается
+   на весь экран, без технической панели — как и раньше. */
+
+body.theater-mode #video-grid.single-view .player-column.active-single {
+    flex: 1 1 0;
+
+    width: 100%;
+
+    margin: 0;
 }
 
 
