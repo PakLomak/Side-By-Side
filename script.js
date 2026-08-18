@@ -5449,6 +5449,442 @@ async function copyModNote(videoNumber) {
 }
 
 // ============================================================
+// ПОДЕЛИТЬСЯ ССЫЛКОЙ (ВИДЕО + СТАРТ + ФИНИШ + FPS)
+// ------------------------------------------------------------
+// Состояние обоих видео упаковывается в JSON, кодируется в
+// base64url и кладётся в хэш ссылки (#s=...), а не в query —
+// хэш не уходит на сервер и не засоряет адрес при статичном
+// хостинге (GitHub Pages и т.п.). При открытии такой ссылки
+// восстанавливаем поля ввода и сами открываем оба видео.
+// ============================================================
+
+function toBase64Url(str) {
+
+    const base64 =
+        btoa(
+            unescape(
+                encodeURIComponent(str)
+            )
+        );
+
+    return base64
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+}
+
+function fromBase64Url(base64url) {
+
+    let base64 =
+        base64url
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+
+    while (base64.length % 4) {
+        base64 += '=';
+    }
+
+    return decodeURIComponent(
+        escape(
+            atob(base64)
+        )
+    );
+
+}
+
+async function copyTextToClipboard(text) {
+
+    if (
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+    ) {
+
+        try {
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+            return true;
+
+        }
+
+        catch (error) {
+
+            console.log(
+                'Не удалось скопировать через Clipboard API:',
+                error
+            );
+
+        }
+
+    }
+
+    // Резервный вариант — показать ссылку, чтобы
+    // скопировать вручную (например, на http:// без HTTPS).
+    window.prompt(
+        'Скопируйте ссылку вручную:',
+        text
+    );
+
+    return false;
+
+}
+
+window.copyShareLink =
+    function() {
+
+        const state = {};
+
+        [1, 2].forEach(
+            function(playerNum) {
+
+                const codeInput =
+                    document.getElementById(
+                        'code' + playerNum
+                    );
+
+                const url =
+                    codeInput
+                        ? codeInput.value.trim()
+                        : '';
+
+                if (!url) {
+                    return;
+                }
+
+                const entry = {
+
+                    u: url,
+
+                    s: getStartTime(
+                        playerNum
+                    ),
+
+                    f: getFPS(
+                        playerNum
+                    )
+
+                };
+
+                const finishTime =
+                    playerNum === 1
+                        ? finishTime1
+                        : finishTime2;
+
+                if (
+                    Number.isFinite(finishTime)
+                ) {
+
+                    entry.e = finishTime;
+
+                }
+
+                state[playerNum] = entry;
+
+            }
+        );
+
+        if (
+            !state[1] &&
+            !state[2]
+        ) {
+
+            alert(
+                'Сначала откройте хотя бы одно видео.'
+            );
+
+            return;
+
+        }
+
+        const encoded =
+            toBase64Url(
+                JSON.stringify(state)
+            );
+
+        const shareUrl =
+            window.location.origin +
+            window.location.pathname +
+            '#s=' + encoded;
+
+        copyTextToClipboard(
+            shareUrl
+        ).then(
+            function(copied) {
+
+                const button =
+                    document.getElementById(
+                        'btn-share-link'
+                    );
+
+                if (!button) {
+                    return;
+                }
+
+                const original =
+                    button.textContent;
+
+                button.textContent =
+                    copied ? '✓' : '…';
+
+                setTimeout(
+                    function() {
+
+                        button.textContent =
+                            original;
+
+                    },
+                    1500
+                );
+
+            }
+        );
+
+    };
+
+// ============================================================
+// ПРИМЕНЕНИЕ НАЧАЛЬНОГО ВРЕМЕНИ ИЗ ССЫЛКИ
+// ============================================================
+
+function applyStartTimeInputs(
+    playerNum,
+    totalSeconds
+) {
+
+    if (
+        !Number.isFinite(totalSeconds) ||
+        totalSeconds < 0
+    ) {
+
+        totalSeconds = 0;
+
+    }
+
+    const hours =
+        Math.floor(totalSeconds / 3600);
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+    const seconds =
+        Math.floor(totalSeconds % 60);
+
+    const milliseconds =
+        Math.round(
+            (totalSeconds % 1) * 1000
+        );
+
+    const hourInput =
+        document.getElementById(
+            'hour' + playerNum
+        );
+
+    const minInput =
+        document.getElementById(
+            'min' + playerNum
+        );
+
+    const secInput =
+        document.getElementById(
+            'sec' + playerNum
+        );
+
+    const csInput =
+        document.getElementById(
+            'cs' + playerNum
+        );
+
+    if (hourInput) {
+        hourInput.value = hours;
+    }
+
+    if (minInput) {
+        minInput.value = minutes;
+    }
+
+    if (secInput) {
+        secInput.value = seconds;
+    }
+
+    if (csInput) {
+        csInput.value = milliseconds;
+    }
+
+}
+
+// ============================================================
+// ПРИМЕНЕНИЕ ФИНИША ИЗ ССЫЛКИ
+// ------------------------------------------------------------
+// Повторяет побочные эффекты setFinishTime(), но без реальной
+// перемотки — конечная точка уже известна из ссылки.
+// ============================================================
+
+function applySharedFinishTime(
+    playerNum,
+    endTime
+) {
+
+    if (!Number.isFinite(endTime)) {
+        return;
+    }
+
+    const startTime =
+        getStartTime(playerNum);
+
+    const elapsedTime =
+        Math.max(
+            0,
+            endTime - startTime
+        );
+
+    if (playerNum === 1) {
+
+        finishTime1 = endTime;
+        resultTime1 = elapsedTime;
+
+    }
+
+    else {
+
+        finishTime2 = endTime;
+        resultTime2 = elapsedTime;
+
+    }
+
+    updateResultDisplays();
+
+    updateEndTimeDisplay(
+        playerNum,
+        endTime
+    );
+
+    updateTimeDifferenceDisplay(
+        playerNum,
+        elapsedTime
+    );
+
+    updateModNote(
+        playerNum
+    );
+
+}
+
+// ============================================================
+// ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ ИЗ ССЫЛКИ ПРИ ЗАГРУЗКЕ
+// ============================================================
+
+function restoreStateFromHash() {
+
+    const hash =
+        window.location.hash;
+
+    if (
+        !hash ||
+        hash.indexOf('#s=') !== 0
+    ) {
+
+        return;
+
+    }
+
+    let data;
+
+    try {
+
+        data =
+            JSON.parse(
+                fromBase64Url(
+                    hash.slice(3)
+                )
+            );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            'Не удалось прочитать состояние из ссылки:',
+            error
+        );
+
+        return;
+
+    }
+
+    [1, 2].forEach(
+        function(playerNum) {
+
+            const entry =
+                data[playerNum];
+
+            if (
+                !entry ||
+                !entry.u
+            ) {
+
+                return;
+
+            }
+
+            const codeInput =
+                document.getElementById(
+                    'code' + playerNum
+                );
+
+            if (codeInput) {
+
+                codeInput.value =
+                    entry.u;
+
+            }
+
+            applyStartTimeInputs(
+                playerNum,
+                entry.s || 0
+            );
+
+            updateStartTimeDisplay(
+                playerNum
+            );
+
+            loadEmbedVideo(
+                playerNum
+            );
+
+            if (
+                Number.isFinite(entry.f) &&
+                entry.f > 0
+            ) {
+
+                setPlayerFPS(
+                    playerNum,
+                    entry.f,
+                    false
+                );
+
+            }
+
+            if (
+                Number.isFinite(entry.e)
+            ) {
+
+                applySharedFinishTime(
+                    playerNum,
+                    entry.e
+                );
+
+            }
+
+        }
+    );
+
+}
+
+// ============================================================
 // ПЕРВОНАЧАЛЬНОЕ ОБНОВЛЕНИЕ
 // ============================================================
 
@@ -5464,3 +5900,5 @@ updateResultDisplays();
 
 updateStartTimeDisplay(1);
 updateStartTimeDisplay(2);
+
+restoreStateFromHash();
