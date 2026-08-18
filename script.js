@@ -4537,7 +4537,63 @@ function stopVideoPlayer(playerNum) {
 }
 
 // ============================================================
-// ЛОКАЛЬНОЕ УПРАВЛЕНИЕ ВИДЕО 1
+// ПЕРЕХОД К КОНЦУ ЗАБЕГА
+// ------------------------------------------------------------
+// Зеркальная функция к stopVideoPlayer() — вместо старта
+// перематывает к зафиксированной точке финиша (🏁). Пока
+// финиш не зафиксирован, переходить некуда.
+// ============================================================
+
+function jumpToFinish(playerNum) {
+
+    const finishTime =
+        playerNum === 1
+            ? finishTime1
+            : finishTime2;
+
+    if (!Number.isFinite(finishTime)) {
+
+        alert(
+            'Сначала зафиксируйте конец забега кнопкой 🏁.'
+        );
+
+        return;
+
+    }
+
+    pauseVideo(playerNum);
+
+    stopFrameTimer(playerNum);
+    stopYouTubeTimer(playerNum);
+
+    const info =
+        players[playerNum];
+
+    if (info) {
+
+        const frame =
+            Math.round(
+                finishTime * info.fps
+            );
+
+        setPlayerFrame(
+            playerNum,
+            frame,
+            false
+        );
+
+    }
+
+    updateTimerDisplays();
+
+    seekVideo(
+        playerNum,
+        getVideoTime(playerNum)
+    );
+
+}
+
+
 // ============================================================
 
 window.playVideo1 =

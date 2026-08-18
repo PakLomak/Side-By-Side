@@ -658,6 +658,42 @@ iframe {
 
 
 /* ==========================================================
+   КНОПКА ПЕРЕХОДА К КОНЦУ
+   ========================================================== */
+
+.btn-jump-to-end {
+    width: 28px;
+    height: 28px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 28px;
+
+    background: #333333;
+
+    color: #dddddd;
+
+    border: 1px solid #111111;
+    border-radius: 2px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.btn-jump-to-end:hover {
+    background: #444444;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================================
    ЛОКАЛЬНЫЕ КНОПКИ
    ========================================================== */
 
