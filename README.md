@@ -42,7 +42,7 @@ script.js    вся логика: плееры, синхронизация, шк
 
 - расширение **Live Server** в VS Code (правый клик по `index.html` → «Open with Live Server»);
 - или из терминала: `python3 -m http.server 5500`, затем открыть `http://127.0.0.1:5500`.
-- https://paklomak.github.io/Side-By-Side/
+- отлично работает на github.io https://paklomak.github.io/Side-By-Side/
 
 ## Как пользоваться
 
